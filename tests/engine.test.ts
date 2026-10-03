@@ -80,7 +80,7 @@ describe("moment detection", () => {
 
   it("the capture queue asks about exactly the six seeded cases and is silent on the two routine ones", () => {
     const asked = S.captureCases.filter((c) => detectMoment(trace(c.invoice.id, { actions: [c.expertAction] }), c.invoice, S) !== null);
-    expect(asked.map((c) => c.invoice.id)).toEqual(["INV-2041", "INV-2043", "INV-2044", "INV-2042/A", "INV-2046", "INV-2047"]);
+    expect(asked.map((c) => c.invoice.id)).toEqual(["INV-2041", "INV-2044", "INV-2043", "INV-2042/A", "INV-2046", "INV-2047"]);
   });
 });
 
@@ -225,7 +225,7 @@ describe("tutor", () => {
 
 describe("cues", () => {
   it("capture cue carries the contrast the agent needs and never leaks hidden rule keys", () => {
-    const c = S.captureCases[3];
+    const c = S.captureCases.find((x) => x.invoice.id === "INV-2044")!;
     const m = detectMoment(trace("INV-2044", { actions: ["hold"], lookups: ["bank_log"] }), c.invoice, S)!;
     const cue = captureAskCue(m, c.invoice, S, emptyWorkMap(S), ["bank_log"]);
     expect(cue).toContain("the expert chose: HOLD");

@@ -91,6 +91,18 @@ export function MapScreen() {
           >
             Teach a new hire with this map
           </button>
+          {mapSource === "captured" && b.missed.length > 0 && (
+            <button
+              className="btn"
+              data-testid="teach-full"
+              onClick={() => {
+                loadSeedMap();
+                void tutor.begin();
+              }}
+            >
+              Teach with Maria's full example map
+            </button>
+          )}
           <button
             className="btn"
             disabled={empty}

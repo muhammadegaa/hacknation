@@ -137,3 +137,53 @@ test("saved example map: hidden steps are shown as not in the manual", async ({ 
   await expect(page.getByTestId("rule-count")).toContainText("6 rules · 6 verified");
   await expect(page.locator('[data-kind="guardrail"]')).toContainText("Hard stop");
 });
+
+test("the 3-minute demo path: 3 invoices (one silent, two rules), honest benchmark, then the full example map", async ({ page }) => {
+  await page.goto("/?fast=1");
+  await page.evaluate(() => localStorage.clear());
+  await page.goto("/?fast=1");
+  await page.getByTestId("mode-sim").click();
+  await page.getByTestId("start-capture").click();
+  await expect(agentLines(page)).toHaveCount(1);
+
+  // Harbor: routine, Pip stays silent.
+  await page.getByTestId("act-approve").click();
+  await page.getByTestId("next-invoice").click();
+  await expect(page.getByTestId("silent-count")).toHaveText("1");
+  await expect(page.getByTestId("asked-count")).toHaveText("0");
+
+  const answer = async (text: string, lines: number) => {
+    await expect(agentLines(page)).toHaveCount(lines + 1); // question
+    await page.getByTestId("compose-input").fill(text);
+    await page.getByTestId("compose-input").press("Enter");
+    await expect(agentLines(page)).toHaveCount(lines + 2); // play-back
+    await page.getByTestId("compose-input").fill("Yes.");
+    await page.getByTestId("compose-input").press("Enter");
+    await expect(agentLines(page)).toHaveCount(lines + 3);
+    return lines + 3;
+  };
+
+  // Brightline: the manual says hold (3.8% over); Maria approves.
+  await page.getByTestId("tab-contract").click();
+  await page.getByTestId("act-approve").click();
+  let n = await answer(S.captureCases[1].expertSays, 1);
+  await page.getByTestId("next-invoice").click();
+  // Vantage: everything matches, so a novice approves; Maria checks the bank log and holds.
+  await page.getByTestId("tab-bank_log").click();
+  await page.getByTestId("act-hold").click();
+  n = await answer(S.captureCases[2].expertSays, n);
+
+  await page.getByTestId("finish-capture").click();
+  await expect(agentLines(page)).toHaveCount(n + 1);
+  await page.getByTestId("compose-input").fill("Friday afternoon invoices. People rush.");
+  await page.getByTestId("compose-input").press("Enter");
+  await page.getByTestId("view-map").click();
+
+  // Honest: only some of the seeded rules were reachable in four invoices.
+  await expect(page.getByTestId("bench-score")).toHaveText("2 of 6");
+  await expect(page.getByTestId("teach-full")).toBeVisible();
+
+  await page.getByTestId("teach-full").click();
+  await expect(page.getByTestId("rule-count")).toContainText("6 rules · 6 verified");
+  await expect(page.getByTestId("hidden-steps")).toHaveText("2 hidden steps");
+});

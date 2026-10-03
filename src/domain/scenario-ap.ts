@@ -461,18 +461,18 @@ export const apScenario: Scenario = {
         "Brightline always runs three to four percent over. There's a side letter from 2024 that lets them pass through fuel surcharge up to five percent. So up to five, I approve it. Over five, I hold it and ask for the breakdown.",
     },
     {
-      invoice: pennant,
-      ruleKey: "small_vendor_receipt",
-      expertAction: "approve",
-      expertSays:
-        "Pennant are a family firm and the site managers are always late logging receipts. I ping the requester to confirm the work was done, and if they say yes I approve. I don't make small vendors wait over paperwork. My line is about two and a half thousand pounds. Above that I wait for the receipt.",
-    },
-    {
       invoice: vantage,
       ruleKey: "bank_change",
       expertAction: "hold",
       expertSays:
         "The bank details changed and nobody called the vendor. That is the oldest fraud trick there is. I never pay a changed account on an email. I hold it and call the vendor on the number we already had on file, not the one on the invoice. It doesn't matter if everything else matches.",
+    },
+    {
+      invoice: pennant,
+      ruleKey: "small_vendor_receipt",
+      expertAction: "approve",
+      expertSays:
+        "Pennant are a family firm and the site managers are always late logging receipts. I ping the requester to confirm the work was done, and if they say yes I approve. I don't make small vendors wait over paperwork. My line is about two and a half thousand pounds. Above that I wait for the receipt.",
     },
     {
       invoice: harborDup,

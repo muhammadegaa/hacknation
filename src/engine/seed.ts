@@ -42,7 +42,8 @@ export function seedWorkMap(s: Scenario): WorkMap {
       action: "Message the requester to confirm the work was done; if they confirm, approve",
       rationale: "Site managers log receipts late, and small vendors should not wait on our paperwork",
       unless: "Above roughly £2,500, wait for the receipt",
-      source_quote: "I don't make small vendors wait over paperwork. My line is about two and a half thousand pounds. Above that I wait for the receipt.",
+      source_quote:
+        "I don't make small vendors wait over paperwork. My line is about two and a half thousand pounds. Above that I wait for the receipt.",
       case_id: "INV-2043",
     },
     true,
@@ -71,7 +72,8 @@ export function seedWorkMap(s: Scenario): WorkMap {
       kind: "heuristic",
       step_id: "S4",
       title: "Near-duplicates count as duplicates",
-      condition: "Same vendor, same amount and same PO as an invoice already processed, with an invoice number that differs by a character or a suffix",
+      condition:
+        "Same vendor, same amount and same PO as an invoice already processed, with an invoice number that differs by a character or a suffix",
       action: "Reject as a duplicate and tell the vendor",
       rationale: "Vendors resubmit with a tweaked number, and the system only catches exact matches",
       source_quote: "If amount and PO match and the numbers are one character apart, it's a duplicate. I reject it and tell the vendor.",
@@ -89,7 +91,8 @@ export function seedWorkMap(s: Scenario): WorkMap {
       action: "Escalate to the controller",
       rationale: "Looks like a vendor set up to stay under the approval threshold; rejecting only prompts a resubmission with a PO",
       severity: "strong",
-      source_quote: "I don't just reject it, because then it comes back with a PO. I escalate to the controller so they can look at who created the vendor.",
+      source_quote:
+        "I don't just reject it, because then it comes back with a PO. I escalate to the controller so they can look at who created the vendor.",
       case_id: "INV-2046",
     },
     true,
@@ -104,7 +107,8 @@ export function seedWorkMap(s: Scenario): WorkMap {
       action: "Schedule payment inside the discount window instead of on the due date",
       rationale: "A 2% discount for paying 20 days early is a very high annualised return",
       unless: "The cash forecast is tight",
-      source_quote: "On twenty-two thousand that's four hundred and forty pounds. I schedule it for day ten, not the due date, as long as the cash forecast is fine.",
+      source_quote:
+        "On twenty-two thousand that's four hundred and forty pounds. I schedule it for day ten, not the due date, as long as the cash forecast is fine.",
       case_id: "INV-2047",
     },
     true,

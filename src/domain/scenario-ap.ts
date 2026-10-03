@@ -1,4 +1,4 @@
-import type { ActionType, Invoice, Scenario } from "./types";
+import type { ActionType, Invoice, LookupContent, LookupKey, Scenario } from "./types";
 
 /**
  * Scenario: the Accounts Payable exception desk at Northwind Facilities.
@@ -30,7 +30,9 @@ const gbp = (n: number) => `£${n.toLocaleString("en-GB")}`;
 
 const matchLine = (inv: Invoice) => {
   const v = variance(inv);
-  return v == null ? "No PO on file" : `Invoice ${gbp(inv.amount)} vs PO ${gbp(inv.poAmount!)} (${v >= 0 ? "+" : ""}${(v * 100).toFixed(1)}%)`;
+  return v == null
+    ? "No PO on file"
+    : `Invoice ${gbp(inv.amount)} vs PO ${gbp(inv.poAmount!)} (${v >= 0 ? "+" : ""}${(v * 100).toFixed(1)}%)`;
 };
 
 function poLookup(inv: Invoice, receiptLine: string): Invoice["lookups"] {
@@ -117,7 +119,10 @@ const pennant: Invoice = (() => {
   };
   inv.lookups = {
     ...poLookup(inv, "No goods receipt logged for September"),
-    vendor_history: { title: "Vendor history", lines: ["16 invoices in 16 months", "Receipts were logged late on 11 of them, never disputed"] },
+    vendor_history: {
+      title: "Vendor history",
+      lines: ["16 invoices in 16 months", "Receipts were logged late on 11 of them, never disputed"],
+    },
   };
   return inv;
 })();
@@ -142,7 +147,10 @@ const vantage: Invoice = (() => {
     vendor_history: { title: "Vendor history", lines: ["9 invoices in 22 months", "No disputes"] },
     bank_log: {
       title: "Bank details log",
-      lines: ["Sort code and account number on this invoice differ from the last 9 invoices.", "Change received by email, 29 Sep. No call-back recorded."],
+      lines: [
+        "Sort code and account number on this invoice differ from the last 9 invoices.",
+        "Change received by email, 29 Sep. No call-back recorded.",
+      ],
     },
   };
   return inv;
@@ -191,7 +199,10 @@ const apex: Invoice = (() => {
   };
   inv.lookups = {
     ...poLookup(inv, ""),
-    vendor_history: { title: "Vendor history", lines: ["Vendor created 6 days ago", "No prior invoices", "Requested by: unknown (no requester on file)"] },
+    vendor_history: {
+      title: "Vendor history",
+      lines: ["Vendor created 6 days ago", "No prior invoices", "Requested by: unknown (no requester on file)"],
+    },
     contract: { title: "Contract notes", lines: ["No contract on file."] },
   };
   return inv;
@@ -356,7 +367,10 @@ const orion = trainee(
   (i) => ({
     ...poLookup(i, "Goods receipt GR-6125 · received in full"),
     vendor_history: { title: "Vendor history", lines: ["60 invoices in 5 years", "No disputes"] },
-    dup_search: { title: "Duplicate search", lines: ["No exact match on number.", "Near match: INV-7718, £2,750, same PO-9071, paid 28 Sep."] },
+    dup_search: {
+      title: "Duplicate search",
+      lines: ["No exact match on number.", "Near match: INV-7718, £2,750, same PO-9071, paid 28 Sep."],
+    },
   }),
 );
 
@@ -551,3 +565,24 @@ export const actionLabel: Record<ActionType, string> = {
   reject: "Reject",
   escalate: "Escalate",
 };
+
+export const lookupLabel: Record<LookupKey, string> = {
+  po_receipt: "PO & receipt",
+  vendor_history: "Vendor history",
+  contract: "Contract notes",
+  bank_log: "Bank details",
+  dup_search: "Duplicate search",
+};
+
+const DEFAULT_LOOKUPS: Record<LookupKey, LookupContent> = {
+  po_receipt: { title: "PO and goods receipt", lines: ["Nothing on file."] },
+  vendor_history: { title: "Vendor history", lines: ["No notable history."] },
+  contract: { title: "Contract notes", lines: ["Standard terms. No special clauses."] },
+  bank_log: { title: "Bank details log", lines: ["No changes in the last 24 months."] },
+  dup_search: { title: "Duplicate search", lines: ["No similar invoices in the last 90 days."] },
+};
+
+/** Every lookup answers, so which tabs have content never gives the game away. */
+export function lookupContent(inv: Invoice, key: LookupKey): LookupContent {
+  return inv.lookups[key] ?? DEFAULT_LOOKUPS[key];
+}

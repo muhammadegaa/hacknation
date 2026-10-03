@@ -88,6 +88,9 @@ export type WorkEvent =
   | { id: string; t: number; type: "lookup"; caseId: string; lookup: LookupKey }
   | { id: string; t: number; type: "action"; caseId: string; action: ActionType };
 
+type DistributiveOmit<T, K extends keyof never> = T extends unknown ? Omit<T, K> : never;
+export type WorkEventInput = DistributiveOmit<WorkEvent, "id" | "t">;
+
 // ---------------------------------------------------------------------------
 // Moments (when the Apprentice decides to speak)
 // ---------------------------------------------------------------------------

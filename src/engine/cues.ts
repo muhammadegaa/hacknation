@@ -1,4 +1,4 @@
-import { actionLabel } from "../domain/scenario-ap";
+import { actionLabel, lookupContent } from "../domain/scenario-ap";
 import type { Insight, Invoice, LookupKey, Moment, Scenario, TraineeCaseSpec, WorkMap } from "../domain/types";
 import type { TraineeMoment } from "./moments";
 import { knownRulesLine } from "./workmap";
@@ -16,9 +16,9 @@ export function invoiceFacts(inv: Invoice): string {
 }
 
 function lookupDump(inv: Invoice, keys: LookupKey[]): string {
-  const seen = keys.filter((k, i) => keys.indexOf(k) === i && inv.lookups[k]);
+  const seen = keys.filter((k, i) => keys.indexOf(k) === i);
   if (seen.length === 0) return "none";
-  return seen.map((k) => `${inv.lookups[k]!.title}: ${inv.lookups[k]!.lines.join(" / ")}`).join(" | ");
+  return seen.map((k) => `${lookupContent(inv, k).title}: ${lookupContent(inv, k).lines.join(" / ")}`).join(" | ");
 }
 
 const TAG = "[[WORKSPACE]]";
@@ -32,8 +32,8 @@ export function openedObservation(inv: Invoice): string {
 }
 
 export function lookupObservation(inv: Invoice, key: LookupKey): string {
-  const l = inv.lookups[key];
-  return `${TAG} OBSERVE. On ${inv.id} the expert opened "${l?.title ?? key}": ${l?.lines.join(" / ") ?? "(empty)"}`;
+  const l = lookupContent(inv, key);
+  return `${TAG} OBSERVE. On ${inv.id} the expert opened "${l.title}": ${l.lines.join(" / ")}`;
 }
 
 export function routineObservation(inv: Invoice, action: string): string {
@@ -71,16 +71,23 @@ export function tutorCaseObservation(tc: TraineeCaseSpec, index: number, total: 
 }
 
 export function tutorLookupObservation(inv: Invoice, key: LookupKey): string {
-  const l = inv.lookups[key];
-  return `${TAG} OBSERVE. The trainee opened "${l?.title ?? key}" on ${inv.id}: ${l?.lines.join(" / ") ?? "(empty)"}`;
+  const l = lookupContent(inv, key);
+  return `${TAG} OBSERVE. The trainee opened "${l.title}" on ${inv.id}: ${l.lines.join(" / ")}`;
 }
 
 function relevantLine(ins: Insight[]): string {
-  if (ins.length === 0) return "none captured for this situation (teach from the written procedure and say the expert has not explained this yet)";
+  if (ins.length === 0)
+    return "none captured for this situation (teach from the written procedure and say the expert has not explained this yet)";
   return ins.map((i) => `${i.id} "${i.title}"`).join("; ");
 }
 
-export function tutorMomentCue(m: TraineeMoment, tc: TraineeCaseSpec, relevant: Insight[], openedLookups: LookupKey[], mapStepIds: string[]): string {
+export function tutorMomentCue(
+  m: TraineeMoment,
+  tc: TraineeCaseSpec,
+  relevant: Insight[],
+  openedLookups: LookupKey[],
+  mapStepIds: string[],
+): string {
   const base = [
     `${TAG} ${m.kind === "mistake" ? "MISTAKE" : m.kind === "trap_avoided" ? "PROBE" : "PRAISE"}`,
     `case: ${invoiceFacts(tc.invoice)}`,

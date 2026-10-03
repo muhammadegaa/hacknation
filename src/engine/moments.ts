@@ -97,12 +97,7 @@ export interface TraineeMoment {
   attempt: number;
 }
 
-export function classifyTraineeAction(
-  action: ActionType,
-  expected: ActionType,
-  trap: boolean,
-  attempt: number,
-): TraineeMoment["kind"] {
+export function classifyTraineeAction(action: ActionType, expected: ActionType, trap: boolean, attempt: number): TraineeMoment["kind"] {
   if (action !== expected) return "mistake";
   // Right answer on a trap case is the interesting one: probe the distinction.
   if (trap && attempt === 1) return "trap_avoided";

@@ -110,8 +110,22 @@ describe("work map", () => {
 
   it("merges a refinement of the same rule instead of duplicating it", () => {
     let map = emptyWorkMap(S);
-    map = addInsight(map, { kind: "exception", step_id: "S3", title: "Fuel surcharge vendors run over", condition: "freight vendor over PO", action: "approve", case_id: "INV-2041" }).map;
-    const r = addInsight(map, { kind: "exception", step_id: "S3", title: "Fuel surcharge vendors can run up to 5% over", condition: "freight vendor over PO with side letter", unless: "above 5%", case_id: "INV-2041" });
+    map = addInsight(map, {
+      kind: "exception",
+      step_id: "S3",
+      title: "Fuel surcharge vendors run over",
+      condition: "freight vendor over PO",
+      action: "approve",
+      case_id: "INV-2041",
+    }).map;
+    const r = addInsight(map, {
+      kind: "exception",
+      step_id: "S3",
+      title: "Fuel surcharge vendors can run up to 5% over",
+      condition: "freight vendor over PO with side letter",
+      unless: "above 5%",
+      case_id: "INV-2041",
+    });
     expect(r.created).toBe(false);
     expect(r.map.insights).toHaveLength(1);
     expect(r.map.insights[0].unless).toBe("above 5%");
@@ -137,7 +151,10 @@ describe("work map", () => {
     const b = benchmark(map, S);
     expect(b.found).toHaveLength(6);
     expect(b.missed).toHaveLength(0);
-    expect(map.steps.filter((s) => !s.documented).map((s) => s.label)).toEqual(["Confirm delivery with the requester", "Verify changed bank details by call-back"]);
+    expect(map.steps.filter((s) => !s.documented).map((s) => s.label)).toEqual([
+      "Confirm delivery with the requester",
+      "Verify changed bank details by call-back",
+    ]);
     const text = serializeForLLM(map);
     expect(text).toContain("NOT IN THE WRITTEN PROCEDURE");
     expect(text).toContain("Never pay changed bank details");
@@ -221,8 +238,20 @@ describe("cues", () => {
     const t = tc2();
     const map = seedWorkMap(S);
     const rel = insightsForRule(map, S, t.ruleKey);
-    const first = tutorMomentCue({ caseId: t.invoice.id, kind: "mistake", action: "approve", expected: "hold", attempt: 1 }, t, rel, [], ["S1"]);
-    const second = tutorMomentCue({ caseId: t.invoice.id, kind: "mistake", action: "approve", expected: "hold", attempt: 2 }, t, rel, [], ["S1"]);
+    const first = tutorMomentCue(
+      { caseId: t.invoice.id, kind: "mistake", action: "approve", expected: "hold", attempt: 1 },
+      t,
+      rel,
+      [],
+      ["S1"],
+    );
+    const second = tutorMomentCue(
+      { caseId: t.invoice.id, kind: "mistake", action: "approve", expected: "hold", attempt: 2 },
+      t,
+      rel,
+      [],
+      ["S1"],
+    );
     expect(first).toContain("do NOT reveal");
     expect(second).toContain("reveal the rule");
   });

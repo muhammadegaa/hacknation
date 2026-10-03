@@ -113,7 +113,7 @@ export function addInsight(map: WorkMap, input: InsightInput, now = Date.now()):
     action: str(input.action),
     rationale: str(input.rationale),
     unless: str(input.unless) || undefined,
-    severity: kind === "guardrail" ? severity ?? "strong" : severity,
+    severity: kind === "guardrail" ? (severity ?? "strong") : severity,
     sourceQuote: str(input.source_quote),
     caseId: str(input.case_id) || undefined,
   };
@@ -204,6 +204,11 @@ export function benchmark(map: WorkMap, s: Scenario) {
   return { found, missed, total: s.rules.length };
 }
 
+/** The seeded rule an insight belongs to, via the capture case it came from. */
+export function ruleKeyOfInsight(i: Insight, s: Scenario): string | null {
+  return s.captureCases.find((c) => c.invoice.id === i.caseId)?.ruleKey ?? null;
+}
+
 /** Insights relevant to a seeded rule key, via the case each insight was captured on. */
 export function insightsForRule(map: WorkMap, s: Scenario, ruleKey: string | null): Insight[] {
   if (!ruleKey) return [];
@@ -215,7 +220,8 @@ export function insightsForRule(map: WorkMap, s: Scenario, ruleKey: string | nul
 // Serialisation
 // ---------------------------------------------------------------------------
 
-const statusWord = (i: Insight) => (i.status === "confirmed" ? "verified by expert" : i.status === "corrected" ? "corrected by expert" : "unverified");
+const statusWord = (i: Insight) =>
+  i.status === "confirmed" ? "verified by expert" : i.status === "corrected" ? "corrected by expert" : "unverified";
 
 /** Compact text form handed to the tutor agent as a dynamic variable. */
 export function serializeForLLM(map: WorkMap): string {
@@ -231,7 +237,9 @@ export function serializeForLLM(map: WorkMap): string {
   lines.push("RULES AND JUDGMENT");
   if (map.insights.length === 0) lines.push("(none captured)");
   for (const i of map.insights) {
-    lines.push(`[${i.id}] ${KIND_LABEL[i.kind].toUpperCase()} at ${i.stepId}: ${i.title} (${statusWord(i)}${i.severity ? `, ${i.severity}` : ""})`);
+    lines.push(
+      `[${i.id}] ${KIND_LABEL[i.kind].toUpperCase()} at ${i.stepId}: ${i.title} (${statusWord(i)}${i.severity ? `, ${i.severity}` : ""})`,
+    );
     if (i.condition) lines.push(`  WHEN: ${i.condition}`);
     if (i.action) lines.push(`  THEN: ${i.action}`);
     if (i.rationale) lines.push(`  BECAUSE: ${i.rationale}`);

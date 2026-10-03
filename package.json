@@ -1,0 +1,40 @@
+{
+  "name": "apprentice",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "The AI Apprentice: a voice agent that watches experts work, asks why at natural moments, and turns the answers into a Work Map and a voice tutor.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "setup:agents": "tsx scripts/setup-agents.ts",
+    "smoke:agents": "tsx scripts/smoke-agents.ts"
+  },
+  "dependencies": {
+    "@elevenlabs/client": "^1.26.0",
+    "@elevenlabs/react": "^1.16.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.70.0",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/ws": "^8.18.2",
+    "@vitejs/plugin-react": "^6.1.1",
+    "dotenv": "^18.0.5",
+    "jsdom": "^29.1.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3",
+    "ws": "^8.22.0"
+  }
+}

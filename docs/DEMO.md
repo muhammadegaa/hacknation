@@ -8,7 +8,7 @@ The point to land: **it only speaks when the expert breaks the manual, and what 
 - [ ] Headphones in. A speaker makes the agent hear itself and interrupt.
 - [ ] Chrome, mic permission granted on the page, 1440 px wide window, browser zoom 100%.
 - [ ] Open the app, choose **ElevenLabs live voice**, confirm both agent ids are filled in.
-- [ ] Open **Demo crib sheet** (bottom-left) on a second monitor or phone. You are playing Maria; it has her lines.
+- [ ] Open **Presenter notes** (top bar) on a second screen, or read from `docs/VIDEO.md`. You are playing Maria. When you record, add `?clean=1` to the URL to hide the button.
 - [ ] Failsafe: switch to **Simulated** and rehearse once. If the network dies mid-take, the flow still runs.
 - [ ] Clear state: DevTools → Application → Local Storage → delete `apprentice.v1`.
 

@@ -1,3 +1,4 @@
+import { CLEAN } from "./config";
 import { capture } from "./controllers/capture";
 import { tutor } from "./controllers/tutor";
 import { set, useApp, type Screen } from "./state/store";
@@ -42,7 +43,7 @@ export default function App() {
           ))}
         </nav>
         <span className="spacer" />
-        {screen === "capture" && <CribSheet />}
+        {screen === "capture" && !CLEAN && <CribSheet />}
         <span className={`pill ${voiceMode === "elevenlabs" ? "live" : "sim"}`}>
           <span className="dot" />
           {voiceMode === "elevenlabs" ? "ElevenLabs voice" : "Simulated voice"}

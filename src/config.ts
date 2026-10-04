@@ -1,5 +1,8 @@
 const params = typeof location !== "undefined" ? new URLSearchParams(location.search) : new URLSearchParams();
 
+/** ?clean=1 hides presenter-only controls, for recording the demo video. */
+export const CLEAN = params.has("clean");
+
 /** ?fast=1 shortens every timer. Used by the end-to-end tests. */
 export const FAST = params.has("fast");
 

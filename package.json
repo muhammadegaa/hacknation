@@ -12,7 +12,8 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "setup:agents": "tsx scripts/setup-agents.ts",
-    "smoke:agents": "tsx scripts/smoke-agents.ts"
+    "smoke:agents": "tsx scripts/smoke-agents.ts",
+    "voiceover": "tsx scripts/voiceover.ts"
   },
   "dependencies": {
     "@elevenlabs/client": "^1.26.0",

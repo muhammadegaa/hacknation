@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { capture } from "../controllers/capture";
 import { tutor } from "../controllers/tutor";
 import { apScenario as S } from "../domain/scenario-ap";
@@ -5,6 +6,16 @@ import { loadSeedMap, set, useApp } from "../state/store";
 
 export function Landing() {
   const { voiceMode, settings, workMap, mapSource } = useApp();
+  const [mic, setMic] = useState<"unknown" | "ok" | "blocked">("unknown");
+  const checkMic = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((t) => t.stop());
+      setMic("ok");
+    } catch {
+      setMic("blocked");
+    }
+  };
   const haveMap = workMap.insights.length > 0;
   const voiceReady = !!settings.apprenticeAgentId && !!settings.tutorAgentId;
   const blocked = voiceMode === "elevenlabs" && !voiceReady;
@@ -116,6 +127,15 @@ export function Landing() {
                   <input id="a3" value={settings.traineeName} onChange={(e) => upd({ traineeName: e.target.value })} />
                 </div>
               </div>
+              <p className="note">
+                <button className="btn sm" onClick={() => void checkMic()} data-testid="mic-check">
+                  Check microphone
+                </button>{" "}
+                {mic === "ok" && <span style={{ color: "var(--teal)" }}>Microphone works. Use headphones so Pip doesn't hear itself.</span>}
+                {mic === "blocked" && (
+                  <span style={{ color: "var(--red)" }}>Blocked. Allow the microphone for this site, or continue in text mode.</span>
+                )}
+              </p>
               <p className="note">
                 No ids yet? Run <code>ELEVENLABS_API_KEY=… npm run setup:agents</code> once. It creates both agents and writes the ids to{" "}
                 <code>.env.local</code>. Your browser will ask for the microphone.

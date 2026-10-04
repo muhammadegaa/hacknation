@@ -30,6 +30,17 @@ npm run dev                       # choose "ElevenLabs live voice"
 
 Use headphones in a live demo, otherwise the agent hears itself.
 
+## Deploy (Vercel)
+
+The app is a static Vite build; the browser holds no secrets, only the two public agent ids.
+
+1. Run `npm run setup:agents` locally once and copy the two ids it prints.
+2. Vercel → Add New Project → import this repo. If the repo has no `main` branch, set the production branch to `claude/happy-faraday-mysx6k` in Project Settings → Git.
+3. Add environment variables `VITE_ELEVENLABS_APPRENTICE_AGENT_ID` and `VITE_ELEVENLABS_TUTOR_AGENT_ID`. Deploy.
+4. Open the URL, click **Check microphone**, and run one full take before recording.
+
+`vercel.json` sets the build to `vite build` and allows the microphone. Without the env vars the site opens in Simulated mode; `?sim=1` forces Simulated even when the ids are set, which is a handy backup link. The agents are public and capped at 300 conversations a day (`scripts/setup-agents.ts`); lower it or archive the agents after judging.
+
 ## What happens in a session
 
 | Stage | What the user does | What Apprentice does |

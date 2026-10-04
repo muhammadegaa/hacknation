@@ -108,6 +108,20 @@ export function TutorScreen() {
   return (
     <div className="split">
       <div className="pane">
+        {s.bridgeStatus === "error" && (
+          <div className="hint-banner" role="alert" style={{ marginBottom: 12 }}>
+            Voice connection failed{s.bridgeDetail ? `: ${s.bridgeDetail}` : ""}.{" "}
+            <button
+              className="btn sm"
+              onClick={() => {
+                set({ voiceMode: "simulated" });
+                void tutor.begin();
+              }}
+            >
+              Continue in simulated mode
+            </button>
+          </div>
+        )}
         {!tc ? (
           <div className="card inv" data-testid="tutor-intro">
             <div className="eyebrow">Orientation</div>

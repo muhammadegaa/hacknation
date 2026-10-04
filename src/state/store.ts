@@ -34,6 +34,16 @@ function load(): Persisted {
 
 const persisted = load();
 
+/** Live voice is the default whenever both agents are configured; ?sim=1 forces the offline mode. */
+function defaultVoiceMode(): VoiceMode {
+  const forceSim = typeof location !== "undefined" && new URLSearchParams(location.search).has("sim");
+  const ids = {
+    a: persisted.settings.apprenticeAgentId || envAgentIds.apprentice,
+    t: persisted.settings.tutorAgentId || envAgentIds.tutor,
+  };
+  return !forceSim && ids.a && ids.t ? "elevenlabs" : "simulated";
+}
+
 export interface AppState {
   screen: Screen;
   voiceMode: VoiceMode;
@@ -73,7 +83,7 @@ const initialMap = (): { map: WorkMap; source: AppState["mapSource"] } =>
 
 export const useApp = create<AppState>(() => ({
   screen: "landing",
-  voiceMode: "simulated",
+  voiceMode: defaultVoiceMode(),
   settings: {
     apprenticeAgentId: persisted.settings.apprenticeAgentId || envAgentIds.apprentice,
     tutorAgentId: persisted.settings.tutorAgentId || envAgentIds.tutor,

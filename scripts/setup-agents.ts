@@ -4,7 +4,7 @@
  *   Pip, the Apprentice  - watches the expert, asks why, builds the work map
  *   Pip, the Tutor       - teaches a new hire from the work map
  *
- *   ELEVENLABS_API_KEY=... npm run setup:agents
+ *   npm run setup:agents          (reads ELEVENLABS_API_KEY from .env)
  *
  * The agents are public (no secrets inside), so the browser only needs their ids.
  * The script writes the ids to .env.local. Re-running updates the same agents.
@@ -13,109 +13,58 @@ import "dotenv/config";
 import { readFileSync, existsSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { ElevenLabsClient, type ElevenLabs } from "@elevenlabs/elevenlabs-js";
-import { CAPTURE_TOOLS, TUTOR_TOOLS, type ToolSpec } from "../src/voice/toolSpecs";
+import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
+import {
+  apprenticeBody,
+  tutorBody,
+  DEFAULT_LLM_CANDIDATES,
+  DEFAULT_TTS_MODEL,
+  DEFAULT_VOICE_APPRENTICE,
+  DEFAULT_VOICE_TUTOR,
+  ENGLISH_TTS_MODELS,
+  type AgentBody,
+  type AgentEnv,
+} from "./agentConfig";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const apiKey = process.env.ELEVENLABS_API_KEY;
 if (!apiKey) {
-  console.error("ELEVENLABS_API_KEY is not set. Put it in .env or export it, then re-run.");
+  console.error("ELEVENLABS_API_KEY is not set. Put it in .env (see .env.example) and re-run.");
   process.exit(1);
 }
 const client = new ElevenLabsClient({ apiKey });
 
-const VOICE_APPRENTICE = process.env.ELEVENLABS_VOICE_APPRENTICE || "EXAVITQu4vr4xnSDxMaL";
-const VOICE_TUTOR = process.env.ELEVENLABS_VOICE_TUTOR || "JBFqnCBsd6RMkjVDRZzb";
-const TTS_MODEL = (process.env.ELEVENLABS_TTS_MODEL || "eleven_turbo_v2_5") as ElevenLabs.TtsConversationalModel;
-const LLM_CANDIDATES = ["gpt-4o", "gpt-4o-mini", "claude-3-5-sonnet"];
+// Older copies of .env.example suggested a *_v2_5 model, which English agents reject. Fix it rather than fail.
+const V25_TO_V2: Record<string, string> = { eleven_flash_v2_5: "eleven_flash_v2", eleven_turbo_v2_5: "eleven_turbo_v2" };
+let ttsModel = process.env.ELEVENLABS_TTS_MODEL || DEFAULT_TTS_MODEL;
+if (V25_TO_V2[ttsModel]) {
+  console.warn(`ELEVENLABS_TTS_MODEL=${ttsModel} is multilingual-only; English agents need ${V25_TO_V2[ttsModel]}. Using that.`);
+  ttsModel = V25_TO_V2[ttsModel];
+}
+if (!(ENGLISH_TTS_MODELS as readonly string[]).includes(ttsModel)) {
+  console.error(`ELEVENLABS_TTS_MODEL=${ttsModel} is not allowed for English agents. Use one of: ${ENGLISH_TTS_MODELS.join(", ")}.`);
+  process.exit(1);
+}
+const baseEnv: Omit<AgentEnv, "llm"> = {
+  ttsModel,
+  voiceApprentice: process.env.ELEVENLABS_VOICE_APPRENTICE || DEFAULT_VOICE_APPRENTICE,
+  voiceTutor: process.env.ELEVENLABS_VOICE_TUTOR || DEFAULT_VOICE_TUTOR,
+};
+const LLM_CANDIDATES = [process.env.APPRENTICE_LLM, ...DEFAULT_LLM_CANDIDATES].filter((x, i, a): x is string => !!x && a.indexOf(x) === i);
 
-const prompt = (f: string) => readFileSync(join(root, "prompts", f), "utf8").trim();
-
-function toolConfig(t: ToolSpec): ElevenLabs.PromptAgentApiModelOutputToolsItem {
-  const properties: Record<string, ElevenLabs.LiteralJsonSchemaProperty> = {};
-  for (const [k, p] of Object.entries(t.params)) {
-    properties[k] = { type: p.type, description: p.description, ...(p.enum ? { enum: p.enum } : {}) };
-  }
-  return {
-    type: "client",
-    name: t.name,
-    description: t.description,
-    expectsResponse: t.blocking,
-    responseTimeoutSecs: 10,
-    preToolSpeech: "off",
-    parameters: Object.keys(properties).length ? { type: "object", required: t.required, properties } : undefined,
-  };
+/** The server's explanation, not the SDK's one-line summary. */
+function explain(err: unknown): string {
+  const body = err && typeof err === "object" && "body" in err ? (err as { body: unknown }).body : undefined;
+  const detail = (body as { detail?: { message?: string; param?: string } | string } | undefined)?.detail;
+  if (typeof detail === "string") return detail;
+  if (detail?.message) return detail.message + (detail.param ? ` (param: ${detail.param})` : "");
+  return err instanceof Error ? err.message : String(err);
 }
 
-function build(opts: {
-  name: string;
-  llm: string;
-  voice: string;
-  systemPrompt: string;
-  firstMessage: string;
-  tools: ToolSpec[];
-  placeholders: Record<string, string>;
-}): ElevenLabs.conversationalAi.BodyCreateAgentV1ConvaiAgentsCreatePost {
-  return {
-    name: opts.name,
-    tags: ["hack-nation", "apprentice"],
-    conversationConfig: {
-      agent: {
-        firstMessage: opts.firstMessage,
-        language: "en",
-        dynamicVariables: { dynamicVariablePlaceholders: opts.placeholders },
-        prompt: {
-          prompt: opts.systemPrompt,
-          llm: opts.llm as ElevenLabs.Llm,
-          temperature: 0.4,
-          maxTokens: 400,
-          ignoreDefaultPersonality: true,
-          tools: opts.tools.map(toolConfig),
-          builtInTools: {
-            // Lets the agent stay silent while the expert works.
-            skipTurn: { name: "skip_turn", params: { systemToolType: "skip_turn" } },
-          },
-        },
-      },
-      tts: { voiceId: opts.voice, modelId: TTS_MODEL, stability: 0.5, similarityBoost: 0.8, speed: 1.0 },
-      turn: {
-        // The expert works in silence. Do not re-engage them, and never hang up on silence.
-        turnTimeout: 30,
-        silenceEndCallTimeout: -1,
-        turnEagerness: "patient",
-      },
-      conversation: {
-        maxDurationSeconds: 1800,
-        clientEvents: [
-          "conversation_initiation_metadata",
-          "ping",
-          "audio",
-          "interruption",
-          "user_transcript",
-          "agent_response",
-          "agent_response_correction",
-          "client_tool_call",
-          "agent_tool_response",
-          "vad_score",
-        ],
-      },
-    },
-    platformSettings: {
-      auth: { enableAuth: false },
-      callLimits: { dailyLimit: 300, agentConcurrencyLimit: 5 },
-      // Lets the browser fall back to text-only if the microphone is unavailable,
-      // and lets scripts/smoke-agents.ts run without audio.
-      overrides: { conversationConfigOverride: { conversation: { textOnly: true } } },
-    },
-  };
-}
+const complainsAboutLlm = (msg: string) =>
+  /\bllm\b|model.*(not|unavailable|supported|allowed)/i.test(msg) && !/tts|voice|turn|english/i.test(msg);
 
-async function upsert(
-  label: string,
-  existingId: string | undefined,
-  body: (llm: string) => ElevenLabs.conversationalAi.BodyCreateAgentV1ConvaiAgentsCreatePost,
-) {
-  let lastErr: unknown;
+async function upsert(label: string, existingId: string | undefined, body: (llm: string) => AgentBody) {
   for (const llm of LLM_CANDIDATES) {
     try {
       if (existingId) {
@@ -127,12 +76,12 @@ async function upsert(
       console.log(`  created ${label} (${res.agentId}) with llm=${llm}`);
       return res.agentId;
     } catch (err) {
-      lastErr = err;
-      const msg = err instanceof Error ? err.message : String(err);
-      console.warn(`  ${label}: llm=${llm} rejected (${msg.slice(0, 160)}). Trying the next model.`);
+      const msg = explain(err);
+      if (!complainsAboutLlm(msg) || llm === LLM_CANDIDATES[LLM_CANDIDATES.length - 1]) throw new Error(`${label}: ${msg}`);
+      console.warn(`  ${label}: llm=${llm} was not accepted (${msg}). Trying the next model.`);
     }
   }
-  throw lastErr;
+  throw new Error(`${label}: no LLM candidate was accepted`);
 }
 
 function readEnvLocal(): Record<string, string> {
@@ -149,53 +98,18 @@ function readEnvLocal(): Record<string, string> {
 
 async function main() {
   const env = readEnvLocal();
-  console.log("Configuring ElevenLabs agents...");
+  console.log(`Configuring ElevenLabs agents (tts=${ttsModel}, llm candidates: ${LLM_CANDIDATES.join(", ")})...`);
 
   const apprenticeId = await upsert(
     "Apprentice",
     process.env.VITE_ELEVENLABS_APPRENTICE_AGENT_ID || env.VITE_ELEVENLABS_APPRENTICE_AGENT_ID,
-    (llm) =>
-      build({
-        name: "Pip - Apprentice (capture)",
-        llm,
-        voice: VOICE_APPRENTICE,
-        systemPrompt: prompt("apprentice.md"),
-        firstMessage: "Hi {{expert_name}}, I'm Pip. Work the way you normally do. I'll stay quiet unless something is worth asking.",
-        tools: CAPTURE_TOOLS,
-        placeholders: {
-          expert_name: "the expert",
-          expert_role: "an experienced practitioner",
-          company: "the company",
-          workflow: "their daily work",
-          sop: "(not provided)",
-        },
-      }),
+    (llm) => apprenticeBody({ ...baseEnv, llm }),
   );
-
   const tutorId = await upsert("Tutor", process.env.VITE_ELEVENLABS_TUTOR_AGENT_ID || env.VITE_ELEVENLABS_TUTOR_AGENT_ID, (llm) =>
-    build({
-      name: "Pip - Tutor (teach)",
-      llm,
-      voice: VOICE_TUTOR,
-      systemPrompt: prompt("tutor.md"),
-      firstMessage: "",
-      tools: TUTOR_TOOLS,
-      placeholders: {
-        trainee_name: "the trainee",
-        expert_name: "the expert",
-        expert_role: "an experienced practitioner",
-        company: "the company",
-        workflow: "their daily work",
-        work_map: "(empty)",
-      },
-    }),
+    tutorBody({ ...baseEnv, llm }),
   );
 
-  const merged = {
-    ...env,
-    VITE_ELEVENLABS_APPRENTICE_AGENT_ID: apprenticeId,
-    VITE_ELEVENLABS_TUTOR_AGENT_ID: tutorId,
-  };
+  const merged = { ...env, VITE_ELEVENLABS_APPRENTICE_AGENT_ID: apprenticeId, VITE_ELEVENLABS_TUTOR_AGENT_ID: tutorId };
   writeFileSync(
     join(root, ".env.local"),
     Object.entries(merged)
@@ -209,7 +123,7 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("\nSetup failed:", err instanceof Error ? err.message : err);
+  console.error("\nSetup failed:", explain(err));
   if (err && typeof err === "object" && "body" in err) console.error(JSON.stringify((err as { body: unknown }).body, null, 2));
   process.exit(1);
 });

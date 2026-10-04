@@ -571,7 +571,7 @@ export const lookupLabel: Record<LookupKey, string> = {
   vendor_history: "Vendor history",
   contract: "Contract notes",
   bank_log: "Bank details",
-  dup_search: "Duplicate search",
+  dup_search: "Duplicates",
 };
 
 const DEFAULT_LOOKUPS: Record<LookupKey, LookupContent> = {

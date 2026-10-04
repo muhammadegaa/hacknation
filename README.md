@@ -52,6 +52,21 @@ The app is a static Vite build; the browser holds no secrets, only the two publi
 | **Map** | Reviews the Work Map. | Shows documented steps versus hidden ones, every rule tied to the invoice that prompted it. Exports JSON and a Markdown playbook. |
 | **Teach** | A new hire works fresh invoices by voice. | Tutor compares each decision with the map. Wrong: asks a Socratic question first, reveals the expert's quote second. Right on a trap case: asks them to explain the distinction. Scores per rule. |
 
+## Agentic design principles
+
+What it takes for an agent to be trustworthy enough to sit next to an expert, and where each shows up. Every row has a test.
+
+| Principle | In the product | Where |
+|---|---|---|
+| **Legible.** Show what the agent perceives, decides and why. | A loop bar shows Pip's stage (Observe, Notice, Ask, Verify). When Pip asks, a **Why Pip asked** band lists the evidence: *"You chose Approve. The written procedure says Hold."* | `ui/AgentLoop.tsx`, `explainMoment` in `engine/cues.ts` |
+| **Restraint.** Act only when it adds value. | Pip is silent on routine work and says so (*"Routine: same as the manual. Pip stayed quiet."*). Counters show asked vs. quiet. | `engine/moments.ts`, `controllers/capture.ts` |
+| **Human control.** The person can always stop or override it. | **Pause Pip**, **Not now** (drops the question, records nothing), Mute, End. | `capture.setPaused / skipTopic` |
+| **Verify before it remembers.** | Every rule starts *Proposed*, is read back, and becomes *Verified* or *Corrected*. Experts can also **Confirm** or **Discard** a rule by hand. Discarded rules never reach the tutor. | `engine/workmap.ts`, `capture.confirmRule / discardRule` |
+| **Provenance.** | Each rule links to the invoice that prompted it and keeps the expert's own words. | `Insight.caseId`, `sourceQuote` |
+| **Graceful degradation.** | Live voice, then text, then a simulated agent speaking the same protocol. Errors offer a one-click fallback. | `voice/`, `?sim=1` |
+| **Progressive disclosure.** | Live captions instead of a chat log; rules collapse to *when / then*; the empty map is a slim rail; one status instead of four. | `ui/VoicePanel.tsx`, `ui/WorkMapView.tsx` |
+| **Measured.** | Six seeded hidden rules; the app reports how many a session found. 48 unit tests, 9 end-to-end tests. | `domain/scenario-ap.ts`, `tests/`, `e2e/` |
+
 ## How it works
 
 ```
@@ -95,7 +110,7 @@ docs/                  DEMO.md, PITCH.md, WORKMAP_SCHEMA.md
 
 Be skeptical of any README, including this one.
 
-- **Verified here:** typecheck, production build, 33 unit tests (moment detection, Work Map reducers, tutor scoring, tool contract), and a Playwright end-to-end run of the full loop in simulated mode: capture, ask only on the six rule cases, teach-back, verified map, benchmark 6 of 6, tutor hint ladder, locked rules, scorecard.
+- **Verified here:** typecheck, production build, 48 unit tests (moment detection, Work Map reducers, tutor scoring, tool contract, agent payloads), 9 Playwright end-to-end tests covering of the full loop in simulated mode: capture, ask only on the six rule cases, teach-back, verified map, benchmark 6 of 6, tutor hint ladder, locked rules, scorecard.
 - **Type-checked, not run:** `setup-agents.ts` is checked against the real `@elevenlabs/elevenlabs-js` types, and the browser bridge against `@elevenlabs/client`. The build environment could not reach `api.elevenlabs.io`, so the agents themselves have not been exercised. `npm run smoke:agents` is the first live check. Agent quality depends on the prompts in `prompts/`; expect to tune them.
 - **Not built:** watching an arbitrary application. Today the "eyes" are an instrumented workspace. The same cue protocol would accept events from a browser extension or screen capture with vision; the moment detector would need that tool's SOP expressed as code or as a rubric.
 

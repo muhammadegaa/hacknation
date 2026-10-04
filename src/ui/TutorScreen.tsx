@@ -83,7 +83,6 @@ export function TutorScreen() {
   const s = useApp();
   const [showScore, setShowScore] = useState(false);
   const tc = S.traineeCases[s.tutorIndex];
-  const connected = s.bridgeStatus === "connected";
   const rec = tc ? s.progress[tc.invoice.id] : undefined;
   const attempts = rec?.attempts ?? [];
   const lastOk = attempts.length > 0 && attempts[attempts.length - 1] === tc?.expectedAction;
@@ -147,7 +146,6 @@ export function TutorScreen() {
             active={s.activeLookup ?? "po_receipt"}
             onLookup={(k) => tutor.lookup(k)}
             onDecide={(a) => tutor.decide(a)}
-            presence={connected ? "Pip is coaching" : s.bridgeStatus === "connecting" ? "Connecting…" : "Pip is offline"}
           >
             <div className="ws-foot">
               <span className="grow muted" style={{ fontSize: 12.5 }}>
@@ -187,12 +185,12 @@ export function TutorScreen() {
           }}
           stats={
             <span>
-              Teaching from <b>{s.workMap.insights.length}</b> rules {s.mapSource === "seed" ? "(saved example)" : "(captured)"}
+              Teaching from <b>{s.workMap.insights.length}</b> rules
             </span>
           }
         />
         <div className="mapwrap">
-          <WorkMapView map={s.workMap} focus={s.focus} newIds={[]} expert={S.expertName} locked={locked} />
+          <WorkMapView map={s.workMap} focus={s.focus} newIds={[]} expert={S.expertName} locked={locked} variant="compact" />
         </div>
       </div>
       {showCard && <Scorecard onClose={() => setShowScore(false)} />}

@@ -1198,3 +1198,51 @@ a {
 }
 
 .brand-ai { font-family: var(--sans); font-size: 10.5px; font-weight: 700; letter-spacing: 0.08em; color: #1a1405; background: var(--amber); padding: 1px 6px; border-radius: 5px; margin-left: -2px; align-self: center; }
+
+/* ================= calm pass: one status, progressive disclosure ================= */
+
+/* Pip's loop bar */
+.loop { border-bottom: 1px solid var(--line); background: var(--panel); padding: 8px 20px; }
+.loop-row { display: flex; align-items: center; gap: 18px; min-height: 36px; }
+.stepper { display: flex; gap: 4px; list-style: none; margin: 0; padding: 0; flex: none; }
+.stepper li { font-size: 12px; padding: 3px 10px; border-radius: 999px; color: var(--faint); border: 1px solid transparent; transition: all 0.2s; }
+.stepper li.past { color: var(--muted); }
+.stepper li.now { color: #1a1405; background: var(--amber); font-weight: 600; }
+.loop-line { margin: 0; flex: 1; min-width: 0; font-size: 14px; color: #d8d6d0; }
+.loop-actions { display: flex; gap: 8px; flex: none; }
+.btn.on { background: var(--amber-soft); border-color: var(--amber); color: var(--amber); }
+.why { margin: 6px 0 2px; padding: 8px 12px; border-radius: 9px; background: var(--amber-soft); border: 1px solid rgba(245, 181, 68, 0.28); font-size: 13px; display: flex; gap: 14px; align-items: baseline; }
+.why-h { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); font-weight: 700; white-space: nowrap; }
+.why ul { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 2px 18px; }
+
+/* compact voice panel with live captions */
+.voice { padding: 12px 14px; gap: 8px; }
+.orb-wrap { width: 52px; height: 52px; }
+.voice-name { font-size: 16px; line-height: 1.2; }
+.voice-state { font-size: 12.5px; }
+.voice-stats { margin-top: 1px; font-size: 12px; gap: 12px; }
+.transcript.captions { max-height: 84px; min-height: 0; overflow-y: auto; scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 22px); mask-image: linear-gradient(to bottom, transparent 0, #000 22px); }
+.transcript.captions::-webkit-scrollbar { display: none; }
+.transcript.full { max-height: 280px; }
+.compose .btn.ghost { white-space: nowrap; }
+
+/* calmer rule cards */
+.dd-clamp, .rows dd.clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ins { padding: 9px 12px; }
+.ins.shut .ins-title { margin-bottom: 4px; }
+.ins-foot { align-items: center; margin-top: 6px; }
+.ins-foot .grow { flex: 1; }
+
+/* the empty map is a rail, not a wall of text */
+.node.slim { padding-bottom: 6px; grid-template-columns: 26px 1fr; gap: 10px; }
+.node.slim .bullet { width: 26px; height: 26px; font-size: 10px; }
+.node.slim::before { left: 12px; top: 26px; }
+.node.slim .node-title { padding-top: 2px; }
+.node.slim .node-title b { font-weight: 500; color: var(--muted); font-size: 13px; }
+.wm-empty { padding: 12px 14px; font-size: 13px; margin-bottom: 8px; }
+
+/* presenter notes open under the top bar, never over the page */
+.crib-panel { left: auto; right: 16px; bottom: auto; top: 54px; }
+
+@media (max-width: 1080px) { .loop-row { flex-wrap: wrap; } .stepper { order: 1; } }

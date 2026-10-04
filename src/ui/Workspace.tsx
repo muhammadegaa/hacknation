@@ -18,7 +18,7 @@ export interface WorkspaceProps {
   active: LookupKey;
   onLookup: (k: LookupKey) => void;
   onDecide: (a: ActionType) => void;
-  presence: string;
+  presence?: string;
   children?: React.ReactNode;
 }
 
@@ -32,9 +32,6 @@ export function Workspace(p: WorkspaceProps) {
     <div className="ws" data-testid="workspace">
       <div className="ws-head">
         <h2>{p.title}</h2>
-        <span className="watching" aria-live="polite">
-          <span className="eye" /> {p.presence}
-        </span>
         <div className="ws-progress" aria-label={`Invoice ${p.index + 1} of ${p.total}`}>
           {Array.from({ length: p.total }).map((_, i) => (
             <i key={i} className={i < p.doneCount ? "done" : i === p.index ? "cur" : ""} />

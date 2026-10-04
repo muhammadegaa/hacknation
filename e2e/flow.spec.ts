@@ -95,13 +95,13 @@ test("capture: asks only where the expert departs from the manual, builds a veri
   await expect(page.getByTestId("invoice")).toContainText("INV-3101", { timeout: 10_000 }); // tutor called next_case after the intro
   await shot(page, "05-tutor");
   // No peeking: during practice every rule is locked until a related invoice has been tried.
-  await expect(page.getByTestId("locked-insight")).toHaveCount(6);
+  await expect(page.getByTestId("locked-count")).toHaveText("6 locked");
 
   // Trap + hint ladder on the first invoice: wrong, wrong, then right.
   const tutorLines = () => page.locator(".line.agent").count();
   const before = await tutorLines();
   await page.getByTestId("act-reject").click();
-  await expect(page.getByTestId("locked-insight")).toHaveCount(5); // fuel-surcharge rule unlocks after an attempt
+  await expect(page.getByTestId("locked-count")).toHaveText("5 locked"); // fuel-surcharge rule unlocks after an attempt
   await expect.poll(tutorLines).toBeGreaterThan(before); // Socratic hint, no answer
   const hint = (await page.locator(".line.agent").last().innerText()).toLowerCase();
   expect(hint).not.toContain("fuel");

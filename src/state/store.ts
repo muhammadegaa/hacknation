@@ -8,6 +8,7 @@ import { emptyWorkMap } from "../engine/workmap";
 
 export type Screen = "landing" | "capture" | "map" | "tutor";
 export type VoiceMode = "elevenlabs" | "simulated";
+export type Stage = "observe" | "notice" | "ask" | "verify";
 
 export interface Settings {
   apprenticeAgentId: string;
@@ -67,7 +68,16 @@ export interface AppState {
   activeLookup: LookupKey | null;
   asked: string[];
   silent: string[];
+  /** Cases where the expert told Pip not to ask, or Pip was paused. */
+  skipped: string[];
   wrap: "none" | "queued" | "running" | "done";
+  /** Where Pip is in its loop: observing, noticing a decision, asking, or verifying what it heard. */
+  stage: Stage;
+  /** The evidence behind the question Pip is asking right now. */
+  why: string[];
+  /** The outcome of the last case, in one line. */
+  coachNote: string | null;
+  paused: boolean;
 
   // tutor
   tutorIndex: number;
@@ -106,7 +116,12 @@ export const useApp = create<AppState>(() => ({
   activeLookup: null,
   asked: [],
   silent: [],
+  skipped: [],
   wrap: "none",
+  stage: "observe",
+  why: [],
+  coachNote: null,
+  paused: false,
 
   tutorIndex: -1,
   progress: {},
@@ -150,7 +165,12 @@ export function resetCaptureState() {
     activeLookup: null,
     asked: [],
     silent: [],
+    skipped: [],
     wrap: "none",
+    stage: "observe",
+    why: [],
+    coachNote: null,
+    paused: false,
     bridgeStatus: "idle",
     bridgeDetail: undefined,
     bridgeMode: "listening",

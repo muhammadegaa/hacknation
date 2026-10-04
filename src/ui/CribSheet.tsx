@@ -9,11 +9,9 @@ export function CribSheet() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <div className="crib">
-        <button className="btn sm" onClick={() => setOpen(!open)} aria-expanded={open} data-testid="crib-toggle">
-          {open ? "Hide" : "Demo crib sheet"}
-        </button>
-      </div>
+      <button className="btn sm ghost" onClick={() => setOpen(!open)} aria-expanded={open} data-testid="crib-toggle">
+        {open ? "Hide notes" : "Presenter notes"}
+      </button>
       {open && (
         <div className="crib-panel" role="dialog" aria-label="Demo crib sheet">
           <b>Playing {S.expertName}.</b>{" "}

@@ -232,6 +232,25 @@ async function apprentice() {
     map.insights.some((i) => i.kind === "guardrail" && i.status === "confirmed"),
   );
 
+  // 5. The expert is always in control: "not now" drops the topic and records nothing.
+  const before = map.insights.length;
+  const bl = S.captureCases.find((x) => x.invoice.id === "INV-2041")!;
+  const blMoment = detectMoment(traceFor(bl.invoice.id, ["contract"], "approve"), bl.invoice, S)!;
+  const ask2 = await s.say("user_message", captureAskCue(blMoment, bl.invoice, S, map, ["contract"]));
+  console.log(`      Pip: ${spoken(ask2)}`);
+  const skip = await s.say("user_message", "Not now. Let's skip this one and move on.");
+  console.log(`      Pip: ${spoken(skip) || "(silent)"}`);
+  check("'not now': records nothing", !skip.tools.some((t) => t.name === "record_insight") && map.insights.length === before);
+  check(
+    "'not now': closes the topic",
+    skip.tools.some((t) => t.name === "close_topic"),
+  );
+  check(
+    "'not now': acknowledges briefly, without a follow-up question",
+    words(spoken(skip)) <= 8 && !spoken(skip).includes("?"),
+    `${words(spoken(skip))} words`,
+  );
+
   s.close();
 }
 

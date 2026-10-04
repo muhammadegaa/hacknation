@@ -42,13 +42,14 @@ function stateLabel(role: Props["role"], status: string, mode: BridgeMode, detai
 }
 
 export function VoicePanel(p: Props) {
-  const { bridgeStatus, bridgeMode, bridgeDetail, transcript, muted, voiceMode } = useApp();
+  const { bridgeStatus, bridgeMode, bridgeDetail, transcript, muted } = useApp();
   const [text, setText] = useState("");
+  const [full, setFull] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
-  }, [transcript.length]);
+  }, [transcript.length, full]);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,18 +69,16 @@ export function VoicePanel(p: Props) {
           </div>
           {p.stats && <div className="voice-stats">{p.stats}</div>}
         </div>
-        <span className={`pill ${bridgeStatus === "error" ? "err" : voiceMode === "elevenlabs" ? "live" : "sim"}`}>
-          <span className="dot" />
-          {voiceMode === "elevenlabs" ? "ElevenLabs live" : "Simulated"}
-        </span>
-        <button className="btn sm" onClick={() => p.setMuted(!muted)} aria-pressed={muted} title="Mute the agent's voice or your mic">
+        <button className="btn sm" onClick={() => p.setMuted(!muted)} aria-pressed={muted} title="Mute Pip's voice">
           {muted ? "Unmute" : "Mute"}
         </button>
         <button className="btn sm ghost" onClick={p.onEnd}>
           End
         </button>
       </div>
-      <div className="transcript" role="log" aria-live="polite" data-testid="transcript">
+
+      {/* Live captions: the last couple of lines. The full conversation is one click away. */}
+      <div className={`transcript ${full ? "full" : "captions"}`} role="log" aria-live="polite" data-testid="transcript">
         {transcript.length === 0 && <div className="empty-t">Nothing said yet.</div>}
         {transcript.map((l) => (
           <div key={l.id} className={`line ${l.role}`}>
@@ -88,6 +87,7 @@ export function VoicePanel(p: Props) {
         ))}
         <div ref={endRef} />
       </div>
+
       <form className="compose" onSubmit={submit}>
         <input
           value={text}
@@ -99,6 +99,11 @@ export function VoicePanel(p: Props) {
         <button className="btn sm" type="submit" disabled={!text.trim()}>
           Send
         </button>
+        {transcript.length > 2 && (
+          <button className="btn sm ghost" type="button" onClick={() => setFull(!full)} aria-pressed={full} data-testid="toggle-transcript">
+            {full ? "Captions" : "Full transcript"}
+          </button>
+        )}
       </form>
     </section>
   );

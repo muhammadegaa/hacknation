@@ -138,6 +138,12 @@ export class SimulatedApprentice extends SimBase {
 
   sendText(text: string) {
     this.ev.onTranscript({ role: "expert", text });
+    // The expert can always say "not now"; the agent drops the topic instead of recording it.
+    if (/\b(not now|skip this|move on)\b/i.test(text) && this.stage !== "idle") {
+      this.stage = "idle";
+      this.say("Understood. Moving on.", () => this.tool("close_topic", { outcome: "nothing_to_add" }));
+      return;
+    }
     if (this.stage === "answer" || this.stage === "sweep") return void this.record(text);
     if (this.stage === "confirm") return void this.confirm(text);
   }

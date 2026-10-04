@@ -1,9 +1,9 @@
 import { timing } from "../config";
 import { actionLabel, apScenario as S } from "../domain/scenario-ap";
 import type { ActionType, AgentBridge, LookupKey, WorkEvent, WorkEventInput } from "../domain/types";
-import { captureAskCue, lookupObservation, openedObservation, routineObservation, wrapCue } from "../engine/cues";
+import { captureAskCue, explainMoment, lookupObservation, openedObservation, routineObservation, wrapCue } from "../engine/cues";
 import { applyEvent, detectMoment, emptyTrace, type CaseTrace } from "../engine/moments";
-import { addInsight, addOpenQuestion, confirmInsight } from "../engine/workmap";
+import { addInsight, addOpenQuestion, confirmInsight, removeInsight } from "../engine/workmap";
 import { addTranscript, get, resetCaptureState, set } from "../state/store";
 import { makeBridge } from "../voice/factory";
 
@@ -11,6 +11,8 @@ interface QueuedCue {
   kind: "ask" | "wrap";
   caseId: string;
   text: string;
+  /** Plain-language evidence shown to the expert while Pip asks. */
+  why?: string[];
 }
 
 /**
@@ -28,6 +30,7 @@ class CaptureController {
   private settleTimers = new Map<string, number>();
   private queue: QueuedCue[] = [];
   private dialogActive = false;
+  private activeCaseId: string | null = null;
   private lastActivity = 0;
   private lastUserSpeech = 0;
   private tick: number | undefined;
@@ -101,7 +104,8 @@ class CaptureController {
     const t = Date.now();
     this.traces.set(c.invoice.id, emptyTrace(c.invoice.id, t));
     this.emit({ type: "case_opened", caseId: c.invoice.id });
-    set({ caseIndex: i, activeLookup: "po_receipt" });
+    // The last outcome stays visible on the next invoice until the expert acts again.
+    set({ caseIndex: i, activeLookup: "po_receipt", stage: "observe", why: [] });
     this.lookup("po_receipt", true);
     if (get().bridgeStatus === "connected") this.bridge?.observe(openedObservation(c.invoice));
   }
@@ -127,7 +131,7 @@ class CaptureController {
     const id = c.invoice.id;
     const ev = this.emit({ type: "action", caseId: id, action });
     this.traces.set(id, applyEvent(this.traces.get(id)!, ev));
-    set((s) => ({ decisions: { ...s.decisions, [id]: action } }));
+    set((s) => ({ decisions: { ...s.decisions, [id]: action }, stage: "notice", coachNote: null }));
 
     // Wait for the decision to settle. A second click inside the window is a reversal.
     const prev = this.settleTimers.get(id);
@@ -157,13 +161,22 @@ class CaptureController {
 
     const moment = detectMoment(trace, spec.invoice, S);
     if (!moment) {
-      set((s) => ({ silent: [...s.silent, caseId] }));
+      set((s) => ({ silent: [...s.silent, caseId], stage: "observe", coachNote: "Routine: same as the manual. Pip stayed quiet." }));
       if (get().bridgeStatus === "connected")
         this.bridge?.observe(routineObservation(spec.invoice, actionLabel[trace.actions[trace.actions.length - 1].action]));
       return;
     }
+    if (get().paused) {
+      set((s) => ({ skipped: [...s.skipped, caseId], stage: "observe", coachNote: "Pip is paused, so it did not ask about this one." }));
+      return;
+    }
     const opened = trace.lookups.map((l) => l.key);
-    this.queue.push({ kind: "ask", caseId, text: captureAskCue(moment, spec.invoice, S, get().workMap, opened) });
+    this.queue.push({
+      kind: "ask",
+      caseId,
+      text: captureAskCue(moment, spec.invoice, S, get().workMap, opened),
+      why: explainMoment(moment),
+    });
     set((s) => ({ asked: [...s.asked, caseId] }));
     this.flush();
   }
@@ -210,7 +223,7 @@ class CaptureController {
       this.dialogActive = false;
       if (st.wrap === "running") this.complete();
     }
-    if (this.dialogActive || this.queue.length === 0) return;
+    if (this.dialogActive || this.queue.length === 0 || st.paused) return;
     if (st.bridgeMode !== "listening") return;
     if (Date.now() - this.lastUserSpeech < timing.userQuietMs) return;
 
@@ -218,6 +231,10 @@ class CaptureController {
     this.dialogActive = true;
     this.lastActivity = Date.now();
     if (item.kind === "wrap") set({ wrap: "running" });
+    else {
+      this.activeCaseId = item.caseId;
+      set({ stage: "ask", why: item.why ?? [], coachNote: null });
+    }
     this.bridge.cue(item.text);
   }
 
@@ -236,6 +253,44 @@ class CaptureController {
     return this.bridge?.level() ?? 0;
   }
 
+  // ----- human control: the expert can always override Pip ------------------
+
+  /** While paused, Pip keeps observing but asks nothing. */
+  setPaused(paused: boolean) {
+    set({ paused, coachNote: paused ? "Paused. Pip keeps watching but will not ask." : "Resumed. Pip will ask again when it matters." });
+  }
+
+  /** "Not now": drop the question, tell the agent, never ask about this case. */
+  skipTopic() {
+    const id = this.activeCaseId ?? S.captureCases[get().caseIndex].invoice.id;
+    this.queue = this.queue.filter((q) => q.kind === "wrap" || q.caseId !== id);
+    set((s) => ({
+      skipped: s.skipped.includes(id) ? s.skipped : [...s.skipped, id],
+      stage: "observe",
+      why: [],
+      coachNote: "Skipped. Pip won't ask about this one.",
+    }));
+    if (this.dialogActive) {
+      this.sendText("Not now. Let's skip this one and move on.");
+      window.setTimeout(() => (this.dialogActive = false), 1500);
+    }
+  }
+
+  /** Verify a rule by hand, without waiting for the read-back. */
+  confirmRule(id: string) {
+    const r = confirmInsight(get().workMap, id, true);
+    if (!r.insight) return;
+    set({ workMap: r.map, stage: "observe", why: [], coachNote: `Verified by hand: ${r.insight.title}` });
+    this.bridge?.observe(`[[WORKSPACE]] OBSERVE. The expert confirmed rule ${id} on screen. No read-back is needed for it.`);
+  }
+
+  /** The rule is wrong. Remove it; it will not reach the tutor. */
+  discardRule(id: string) {
+    const title = get().workMap.insights.find((i) => i.id === id)?.title ?? id;
+    set((s) => ({ workMap: removeInsight(s.workMap, id), stage: "observe", why: [], coachNote: `Discarded: ${title}` }));
+    this.bridge?.observe(`[[WORKSPACE]] OBSERVE. The expert discarded rule ${id} because it was wrong. Do not refer to it again.`);
+  }
+
   // ----- tools the agent can call -------------------------------------------
 
   private tools() {
@@ -246,6 +301,7 @@ class CaptureController {
           workMap: r.map,
           newInsightIds: [...s.newInsightIds.filter((x) => x !== r.insight.id), r.insight.id],
           focus: { stepId: r.insight.stepId, insightId: r.insight.id },
+          stage: "verify",
         }));
         this.lastActivity = Date.now();
         return JSON.stringify({ ok: true, insight_id: r.insight.id, created: r.created, step_id: r.insight.stepId });
@@ -257,7 +313,12 @@ class CaptureController {
           p.confirmed === true || p.confirmed === "true",
           String(p.correction ?? ""),
         );
-        set({ workMap: r.map });
+        set({
+          workMap: r.map,
+          ...(r.insight?.status === "confirmed"
+            ? { stage: "observe" as const, why: [], coachNote: `Captured and verified: ${r.insight.title}` }
+            : { stage: "verify" as const, coachNote: "Corrected. Pip will fix the rule." }),
+        });
         this.lastActivity = Date.now();
         return r.insight
           ? JSON.stringify({ ok: true, status: r.insight.status })
@@ -269,6 +330,8 @@ class CaptureController {
       },
       close_topic: () => {
         this.dialogActive = false;
+        this.activeCaseId = null;
+        set({ stage: "observe", why: [] });
         this.lastActivity = Date.now();
         if (get().wrap === "running") this.complete();
         return JSON.stringify({ ok: true });

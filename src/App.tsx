@@ -2,6 +2,7 @@ import { capture } from "./controllers/capture";
 import { tutor } from "./controllers/tutor";
 import { set, useApp, type Screen } from "./state/store";
 import { CaptureScreen } from "./ui/CaptureScreen";
+import { CribSheet } from "./ui/CribSheet";
 import { Landing } from "./ui/Landing";
 import { MapScreen } from "./ui/MapScreen";
 import { TutorScreen } from "./ui/TutorScreen";
@@ -41,6 +42,7 @@ export default function App() {
           ))}
         </nav>
         <span className="spacer" />
+        {screen === "capture" && <CribSheet />}
         <span className={`pill ${voiceMode === "elevenlabs" ? "live" : "sim"}`}>
           <span className="dot" />
           {voiceMode === "elevenlabs" ? "ElevenLabs voice" : "Simulated voice"}

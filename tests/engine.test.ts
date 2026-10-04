@@ -1,11 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { apScenario as S } from "../src/domain/scenario-ap";
 import type { ActionType, WorkEvent } from "../src/domain/types";
-import { captureAskCue, tutorMomentCue } from "../src/engine/cues";
+import { captureAskCue, explainMoment, tutorMomentCue } from "../src/engine/cues";
 import { applyEvent, classifyTraineeAction, detectMoment, emptyTrace } from "../src/engine/moments";
 import { seedWorkMap } from "../src/engine/seed";
 import { caseScore, masteryByRule, overallScore, readiness, recordAttempt } from "../src/engine/tutor";
-import { addInsight, benchmark, confirmInsight, emptyWorkMap, insightsForRule, serializeForLLM, toMarkdown } from "../src/engine/workmap";
+import {
+  addInsight,
+  benchmark,
+  confirmInsight,
+  emptyWorkMap,
+  insightsForRule,
+  removeInsight,
+  serializeForLLM,
+  toMarkdown,
+} from "../src/engine/workmap";
 
 const inv = (id: string) => S.captureCases.find((c) => c.invoice.id === id)!.invoice;
 
@@ -260,3 +269,32 @@ describe("cues", () => {
 function tc2() {
   return S.traineeCases.find((c) => c.invoice.id === "INV-3104")!;
 }
+
+describe("agent transparency and human control", () => {
+  it("explains why Pip asked, in the expert's terms", () => {
+    const c = S.captureCases.find((x) => x.invoice.id === "INV-2041")!;
+    const m = detectMoment(trace("INV-2041", { actions: ["approve"], lookups: ["contract"], dwellMs: 24000 }), c.invoice, S)!;
+    const why = explainMoment(m);
+    expect(why).toEqual([
+      "You chose Approve. The written procedure says Hold.",
+      "You opened Contract notes, which the procedure never mentions.",
+      "It took you 24 seconds to decide.",
+    ]);
+  });
+
+  it("a routine case has nothing to explain because Pip never asks", () => {
+    const c = S.captureCases.find((x) => x.invoice.id === "INV-2042")!;
+    expect(detectMoment(trace("INV-2042", { actions: ["approve"] }), c.invoice, S)).toBeNull();
+  });
+
+  it("discarding a rule removes it, and the next id never collides", () => {
+    let map = emptyWorkMap(S);
+    map = addInsight(map, { title: "A", condition: "a", action: "x", case_id: "INV-2041" }).map;
+    map = addInsight(map, { title: "Completely different B", condition: "b", action: "y", case_id: "INV-2044", kind: "guardrail" }).map;
+    expect(map.insights.map((i) => i.id)).toEqual(["I-1", "I-2"]);
+    map = removeInsight(map, "I-1");
+    expect(map.insights.map((i) => i.id)).toEqual(["I-2"]);
+    map = addInsight(map, { title: "Another C", condition: "c", action: "z", case_id: "INV-2046", kind: "escalation" }).map;
+    expect(map.insights.map((i) => i.id)).toEqual(["I-2", "I-3"]);
+  });
+});

@@ -1,4 +1,4 @@
-import { actionLabel, lookupContent } from "../domain/scenario-ap";
+import { actionLabel, lookupContent, lookupLabel } from "../domain/scenario-ap";
 import type { Insight, Invoice, LookupKey, Moment, Scenario, TraineeCaseSpec, WorkMap } from "../domain/types";
 import type { TraineeMoment } from "./moments";
 import { knownRulesLine } from "./workmap";
@@ -26,6 +26,16 @@ const TAG = "[[WORKSPACE]]";
 // ---------------------------------------------------------------------------
 // Capture
 // ---------------------------------------------------------------------------
+
+/** The evidence behind a question, in plain language, so the expert can see why Pip spoke. */
+export function explainMoment(m: Moment): string[] {
+  const out: string[] = [];
+  if (m.signals.includes("sop_deviation")) out.push(`You chose ${actionLabel[m.action]}. The written procedure says ${actionLabel[m.sopAction]}.`);
+  if (m.unpromptedLookups.length) out.push(`You opened ${m.unpromptedLookups.map((k) => lookupLabel[k]).join(" and ")}, which the procedure never mentions.`);
+  if (m.signals.includes("reversal")) out.push("You changed your decision.");
+  if (m.signals.includes("hesitation")) out.push(`It took you ${Math.round(m.dwellMs / 1000)} seconds to decide.`);
+  return out;
+}
 
 export function openedObservation(inv: Invoice): string {
   return `${TAG} OBSERVE. The expert opened ${invoiceFacts(inv)}.`;

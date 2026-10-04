@@ -60,6 +60,11 @@ export interface InsightInput {
   case_id?: unknown;
 }
 
+/** Ids must stay unique after a discard, so count from the highest id seen, not from the list length. */
+function nextInsightNumber(map: WorkMap): number {
+  return Math.max(0, ...map.insights.map((i) => Number(i.id.replace(/\D/g, "")) || 0)) + 1;
+}
+
 export interface AddInsightResult {
   map: WorkMap;
   insight: Insight;
@@ -148,7 +153,7 @@ export function addInsight(map: WorkMap, input: InsightInput, now = Date.now()):
 
   const insight: Insight = {
     ...candidate,
-    id: `I-${map.insights.length + 1}`,
+    id: `I-${nextInsightNumber(map)}`,
     status: "proposed",
     createdAt: now,
   };
@@ -164,6 +169,11 @@ export function confirmInsight(map: WorkMap, id: string, confirmed: boolean, cor
     correction: confirmed ? target.correction : str(correction) || target.correction,
   };
   return { map: { ...map, insights: map.insights.map((i) => (i.id === id ? next : i)) }, insight: next };
+}
+
+/** The expert says a captured rule is wrong. Remove it; nothing downstream (tutor) should teach it. */
+export function removeInsight(map: WorkMap, id: string): WorkMap {
+  return { ...map, insights: map.insights.filter((i) => i.id !== id) };
 }
 
 export function addOpenQuestion(map: WorkMap, topic: string, caseId?: string, now = Date.now()): WorkMap {

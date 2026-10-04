@@ -22,17 +22,17 @@ Total target: under 100 seconds of narration in a video of about 3 minutes.
 
 *Over the Work Map screen, after the live capture.*
 
-> Every answer becomes a rule on a live Work Map. When, then, because, unless, in Maria's own words, linked to the invoice that prompted it, and confirmed by her. Anything that isn't in the manual shows up as a hidden step.
+> Every answer becomes a rule on a live Work Map. When, then, because, unless, in Maria's own words, linked to the invoice that prompted it, and confirmed by her.
 
 ### 04-tutor
 
-*Over the tutor screen, just before Pip starts speaking.*
+*Over the Work Map screen, right after `03-map` and before you click "Teach with Maria's full example map". Pip's own voice starts the moment you click, so this cannot go later.*
 
 > Now a second voice agent teaches a new hire from that map. It never gives the answer first. It asks. It hints. Only then does it reveal the rule, in Maria's words.
 
 ### 05-principles
 
-*Over the Pip loop bar or the scorecard.*
+*Over the capture screen with the loop bar visible (Clip D). Start it about 8 seconds in, after Pip's greeting has finished.*
 
 > We built Pip to be trusted next to an expert. It shows why it speaks. It stays quiet when it should. The expert can pause it, skip a question, or discard a rule. And nothing is remembered until the expert confirms it.
 
@@ -44,6 +44,6 @@ Total target: under 100 seconds of narration in a video of about 3 minutes.
 
 ### 06-close
 
-*Over the landing page or a title card. Ends the video.*
+*Over the landing page. Ends the video.*
 
 > Caveat AI. Every rule has a caveat. Your best people know them all. Now someone can learn them.

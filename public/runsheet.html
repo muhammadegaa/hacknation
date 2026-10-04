@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex" />
+<title>Recording run-sheet · Caveat AI</title>
+<style>
+  :root { --bg:#0d0e11; --panel:#14161b; --line:#2a2e38; --text:#ebe9e4; --muted:#9a9ea9; --amber:#f5b544; --teal:#4fd1b5; --red:#ff6b6b; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:17px/1.5 -apple-system, "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 16px 16px 90px; }
+  h1 { font: 600 24px/1.2 Georgia, serif; margin: 6px 0 4px; }
+  h2 { font: 600 20px/1.2 Georgia, serif; margin: 0 0 4px; }
+  p { margin: 6px 0; }
+  .muted { color: var(--muted); font-size: 15px; }
+  .bar { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0; border-bottom: 1px solid var(--line); display:flex; gap:10px; align-items:center; }
+  .bar .count { flex:1; font-weight:600; }
+  .bar button { background: var(--panel); color: var(--text); border:1px solid var(--line); border-radius: 9px; padding: 8px 12px; font: inherit; }
+  .card { background: var(--panel); border:1px solid var(--line); border-radius: 14px; padding: 14px; margin: 14px 0; }
+  .tag { display:inline-block; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#1a1405; background:var(--amber); border-radius:6px; padding:2px 8px; font-weight:700; }
+  ol { list-style: none; padding: 0; margin: 10px 0 0; counter-reset: s; }
+  li { display:flex; gap:12px; padding: 11px 0; border-top: 1px solid var(--line); counter-increment: s; }
+  li:first-child { border-top: 0; }
+  li input { width: 26px; height: 26px; flex: none; margin-top: 2px; accent-color: var(--teal); }
+  li.done label { color: var(--muted); text-decoration: line-through; }
+  label { flex:1; cursor:pointer; }
+  b.ui { background:#222633; border:1px solid #343a4a; border-radius:6px; padding:0 7px; font-weight:600; white-space:nowrap; }
+  .say { display:block; margin: 8px 0 2px; padding: 10px 12px; border-left: 4px solid var(--amber); background:#1b1a14; font-size: 19px; line-height:1.45; border-radius: 0 8px 8px 0; }
+  .say::before { content:"SAY  "; font-size:11px; letter-spacing:.1em; color:var(--amber); font-weight:700; }
+  .wait { color: var(--teal); font-weight:600; }
+  .warn { color: var(--red); font-weight:600; }
+  code, .url { font: 14px ui-monospace, Menlo, monospace; background:#1a1d24; border-radius:6px; padding: 2px 6px; word-break: break-all; }
+  details { margin: 10px 0; }
+  summary { cursor:pointer; color: var(--amber); font-weight:600; }
+</style>
+</head>
+<body>
+<main>
+  <div class="bar"><span class="count" id="count">0 of 0 done</span><button id="reset">Reset</button></div>
+
+  <h1>Recording run-sheet</h1>
+  <p class="muted">Open this on your phone and prop it next to the laptop. Tick as you go. Leave <b>two seconds of silence</b> at the start and end of every clip.</p>
+
+  <section class="card" id="pre">
+    <span class="tag">Before you start</span>
+    <ol>
+      <li><input type="checkbox" id="p1"><label for="p1">Mac: <b class="ui">Focus</b> → Do Not Disturb. Close every other app and tab.</label></li>
+      <li><input type="checkbox" id="p2"><label for="p2">Sound: <b>headphones off</b>, volume about <b>50%</b>, quiet room. Pip's voice must reach your mic.</label></li>
+      <li><input type="checkbox" id="p3"><label for="p3">Recording URL, in a <b>new Chrome incognito window</b>: <span class="url" id="url">…</span></label></li>
+      <li><input type="checkbox" id="p4"><label for="p4">Hide bookmarks (Cmd+Shift+B). Press <b>Cmd+Ctrl+F</b> for full screen. Zoom 100%.</label></li>
+      <li><input type="checkbox" id="p5"><label for="p5">Press <b>Cmd+Shift+5</b> → <b>Record Entire Screen</b> → <b>Options</b>: Microphone = MacBook microphone, <b>Show Mouse Clicks</b> on, Save to Desktop.</label></li>
+      <li><input type="checkbox" id="p6"><label for="p6"><b>Test:</b> record 15 seconds, let Pip say hello, speak one sentence, stop, play it back. Both voices clear? If Pip hears itself and interrupts, lower the volume.</label></li>
+    </ol>
+    <details><summary>Stop a recording / if QuickTime disappears</summary>
+      <p>Click the stop icon in the top menu bar, or press <b>Cmd+Ctrl+Esc</b>. The file lands on your Desktop.</p>
+    </details>
+  </section>
+
+  <section class="card" id="A">
+    <span class="tag">Clip A · Hook · about 40 s</span>
+    <h2>Landing page</h2>
+    <p class="muted">Narration <code>01-hook</code> and <code>02-what</code> are added later. You only hold the screen.</p>
+    <ol>
+      <li><input type="checkbox" id="a1"><label for="a1">Fresh incognito window on the recording URL, full screen. Start recording. <span class="wait">Wait 2 s.</span></label></li>
+      <li><input type="checkbox" id="a2"><label for="a2">Do not touch anything for <b>18 s</b>. Let the headline be read.</label></li>
+      <li><input type="checkbox" id="a3"><label for="a3">Slowly move the mouse over the three cards. <span class="wait">About 16 s.</span></label></li>
+      <li><input type="checkbox" id="a4"><label for="a4">Click <b class="ui">Shadow Maria</b>. Allow the microphone if asked. <span class="wait">Wait 2 s.</span> Stop recording.</label></li>
+    </ol>
+  </section>
+
+  <section class="card" id="B">
+    <span class="tag">Clip B · Live capture · about 90 s</span>
+    <h2>Pip and you, no narration</h2>
+    <p class="muted">This is the heart of the video. Speak naturally, like a tired expert. If you fumble, stop and retake the whole clip.</p>
+    <ol>
+      <li><input type="checkbox" id="b1"><label for="b1"><b class="warn">New</b> incognito window, recording URL, full screen. Start recording. <span class="wait">Wait 2 s.</span> Click <b class="ui">Shadow Maria</b>. <span class="wait">Let Pip finish its greeting (about 6 s).</span></label></li>
+      <li><input type="checkbox" id="b2"><label for="b2">Invoice 1, Harbor: click <b class="ui">Approve</b>. <span class="wait">Wait 3 s. Pip says nothing.</span> Click <b class="ui">Next invoice</b>.</label></li>
+      <li><input type="checkbox" id="b3"><label for="b3">Invoice 2, Brightline: click the tab <b class="ui">Contract notes</b>. <span class="wait">Read it for 3 s.</span> Click <b class="ui">Approve</b>.</label></li>
+      <li><input type="checkbox" id="b4"><label for="b4"><span class="wait">Wait for Pip's question (3–5 s).</span> Look at the amber <b class="ui">Why Pip asked</b> band for 2 s. Then answer:
+        <span class="say">Brightline always runs three to four percent over. There's a fuel surcharge side letter, capped at five. Over five, I hold it.</span></label></li>
+      <li><input type="checkbox" id="b5"><label for="b5">Pip reads the rule back. Say:
+        <span class="say">Yes, that's right.</span> <span class="wait">Wait for "Captured and verified".</span> Click <b class="ui">Next invoice</b>.</label></li>
+      <li><input type="checkbox" id="b6"><label for="b6">Invoice 3, Vantage: click the tab <b class="ui">Bank details</b>. <span class="wait">Read it for 3 s.</span> Click <b class="ui">Hold</b>. <span class="wait">Wait for Pip.</span> Answer:
+        <span class="say">The bank details changed and nobody phoned them. I never pay a changed account on an email. I hold it and call the vendor on the number we already have.</span></label></li>
+      <li><input type="checkbox" id="b7"><label for="b7">Pip reads it back. Say <span class="say">Yes, that's right.</span> <span class="wait">Wait for "Captured and verified".</span></label></li>
+      <li><input type="checkbox" id="b8"><label for="b8">Click <b class="ui">Finish capture</b>. Pip asks its last question. Answer:
+        <span class="say">Invoices that land on a Friday afternoon. People rush and skip the bank check.</span></label></li>
+      <li><input type="checkbox" id="b9"><label for="b9">When "Capture complete" appears, click <b class="ui">View the Work Map</b>. Hold <b>3 s</b>. Stop recording. <b class="warn">Do not close this window.</b></label></li>
+    </ol>
+  </section>
+
+  <section class="card" id="C">
+    <span class="tag">Clip C · Map and tutor · about 90 s</span>
+    <h2>Same window as B</h2>
+    <p class="muted">Narration <code>03-map</code> and <code>04-tutor</code> go over the first 30 seconds. Then Pip's live voice takes over.</p>
+    <ol>
+      <li><input type="checkbox" id="c1"><label for="c1">Still on the Work Map from B. Start a new recording. <span class="wait">Wait 2 s.</span> Scroll the map <b>slowly</b> for <b>30 s</b>.</label></li>
+      <li><input type="checkbox" id="c2"><label for="c2">Scroll back to the top. Click <b class="ui">Teach with Maria's full example map</b>.</label></li>
+      <li><input type="checkbox" id="c3"><label for="c3">Pip walks through the map. <span class="wait">Stay quiet and let it talk about 10 s</span> (you will cut the rest when editing). Wait for the first invoice to appear.</label></li>
+      <li><input type="checkbox" id="c4"><label for="c4">Invoice 1, Kestrel: click <b class="ui">Reject</b> (wrong, on purpose). <span class="wait">Wait for Pip's hint question.</span></label></li>
+      <li><input type="checkbox" id="c5"><label for="c5">Click <b class="ui">Hold</b> (still wrong). <span class="wait">Wait for Pip to reveal Maria's rule.</span> Listen to all of it.</label></li>
+      <li><input type="checkbox" id="c6"><label for="c6">Say the rule back:
+        <span class="say">Over the PO, but the contract has a fuel surcharge up to five percent. So approve.</span> Click <b class="ui">Approve</b>. <span class="wait">Hold 3 s</span> on the green button. Stop recording.</label></li>
+    </ol>
+  </section>
+
+  <section class="card" id="D">
+    <span class="tag">Clip D · Close · about 35 s</span>
+    <h2>New window</h2>
+    <p class="muted">Narration <code>05-principles</code> starts about 8 seconds in, after Pip's greeting. <code>06-close</code> goes over the landing page.</p>
+    <ol>
+      <li><input type="checkbox" id="d1"><label for="d1">New incognito window, recording URL, full screen. Start recording. <span class="wait">Wait 2 s.</span> Click <b class="ui">Shadow Maria</b>.</label></li>
+      <li><input type="checkbox" id="d2"><label for="d2"><span class="wait">Let Pip's greeting finish, then hold still for 8 s.</span> Point the mouse slowly at the stage bar: Observe, Notice, Ask, Verify.</label></li>
+      <li><input type="checkbox" id="d3"><label for="d3">Move to <b class="ui">Pause Pip</b> and click it. <span class="wait">Hold 3 s</span> on the "Paused" message.</label></li>
+      <li><input type="checkbox" id="d4"><label for="d4">Click the <b class="ui">Caveat</b> logo, top left, to return to the landing page. <span class="wait">Hold 10 s.</span> Stop recording.</label></li>
+    </ol>
+  </section>
+
+  <section class="card" id="after">
+    <span class="tag">Afterwards</span>
+    <ol>
+      <li><input type="checkbox" id="e1"><label for="e1">Four files on the Desktop. Watch each once with sound. Retake only the clip that is bad (3 tries at most).</label></li>
+      <li><input type="checkbox" id="e2"><label for="e2">In Terminal: <code>npm run voiceover</code>, then <code>open out/voiceover</code>.</label></li>
+      <li><input type="checkbox" id="e3"><label for="e3">Edit in CapCut or iMovie using <code>docs/VIDEO.md</code>. Export 1080p MP4.</label></li>
+    </ol>
+    <details><summary>If something goes wrong</summary>
+      <p><b>Pip never asks:</b> you clicked too fast. Wait 3 s after the decision, or click Next.</p>
+      <p><b>Pip talks over you:</b> stop, wait for "Watching quietly", retake that clip.</p>
+      <p><b>No sound from Pip in the recording:</b> raise the volume to 60% and check the Microphone choice in Cmd+Shift+5 → Options.</p>
+      <p><b>"Connection problem" banner:</b> reload the page. If it persists, check the agent ids in the Vercel settings.</p>
+    </details>
+  </section>
+</main>
+
+<script>
+  (function () {
+    var KEY = "runsheet.v1";
+    var boxes = Array.prototype.slice.call(document.querySelectorAll('input[type="checkbox"]'));
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
+    function paint() {
+      var done = 0;
+      boxes.forEach(function (b) { b.closest("li").classList.toggle("done", b.checked); if (b.checked) done++; });
+      document.getElementById("count").textContent = done + " of " + boxes.length + " done";
+    }
+    boxes.forEach(function (b) {
+      b.checked = !!saved[b.id];
+      b.addEventListener("change", function () {
+        saved[b.id] = b.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+        paint();
+      });
+    });
+    document.getElementById("reset").addEventListener("click", function () {
+      saved = {}; try { localStorage.removeItem(KEY); } catch (e) {}
+      boxes.forEach(function (b) { b.checked = false; });
+      paint();
+    });
+    document.getElementById("url").textContent = location.origin + "/?clean=1";
+    paint();
+  })();
+</script>
+</body>
+</html>

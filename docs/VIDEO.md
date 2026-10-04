@@ -31,8 +31,10 @@ You need to capture three things: the screen, your microphone, and Pip's voice.
 |---|---|---|---|---|
 | **A. Hook** | 0:35 | Landing page | Hold on the page; click **Shadow Maria** at the end | Narration `01-hook`, `02-what` added later |
 | **B. Live capture** | about 75 s | Capture screen | Harbor: **Approve**, **Next**. Brightline: open *Contract notes*, **Approve**, answer Pip, say "yes". Vantage: open *Bank details*, **Hold**, answer, say "yes". **Finish capture**, answer the sweep. | **Live**: Pip and you. No narration. |
-| **C. Map and tutor** | about 70 s | Work Map, then tutor | **View the Work Map**, pause 3 s, **Teach with Maria's full example map**. Let Pip talk 8 s. **Start practice**. Pick **Reject** (wrong), listen to the hint, pick **Hold**, listen to the reveal. **Finish and score**. | Narration `03-map`, `04-tutor` over the silent parts; **live** Pip for the hint and reveal |
-| **D. Close** | 0:15 | Scorecard, then landing | Hold on the loop bar for `05-principles`, then the landing page | Narration `05-principles`, `06-close` |
+| **C. Map and tutor** | about 90 s | Work Map, then tutor | Start on the Work Map left open from B. Hold 30 s, scrolling slowly (narration `03-map`, `04-tutor`). Click **Teach with Maria's full example map**. Let Pip talk about 10 s. When the first invoice appears, pick **Reject** (wrong, on purpose), listen to the hint, pick **Hold** (still wrong), listen to the reveal, pick **Approve** (right). | Narration over the first 30 s; then **live** Pip |
+| **D. Close** | about 35 s | Capture screen, then landing | New window, **Shadow Maria**, wait for Pip's greeting to finish, then hold on the loop bar and click **Pause Pip**. Then click the **Caveat AI** logo and hold on the landing page. | Narration `05-principles` (from 8 s in), then `06-close` |
+
+Do not close the browser window between B and C: the Work Map lives in it. Stop the recording, take a breath, and start a new one on the same screen.
 
 Tip: do each clip twice and keep the better one. Total recording time is about 40 minutes.
 

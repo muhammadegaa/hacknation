@@ -121,6 +121,19 @@ class Session {
     return this.turn;
   }
 
+  /** Wait for whatever the agent says on its own (its opening greeting) and return it. */
+  async drain(quietMs = 3000, maxMs = 25_000): Promise<Turn> {
+    const start = Date.now();
+    while (Date.now() - start < maxMs) {
+      await new Promise((r) => setTimeout(r, 250));
+      const anything = this.turn.said.length + this.turn.tools.length > 0;
+      if (anything && Date.now() - this.lastEvent > quietMs) break;
+    }
+    const t = this.turn;
+    this.turn = { said: [], tools: [] };
+    return t;
+  }
+
   close() {
     this.ws.close();
   }
@@ -173,13 +186,18 @@ async function apprentice() {
   );
   await s.open();
 
+  // 0. The agent greets on connect. That is not a reply to anything we send.
+  const greeting = await s.drain();
+  console.log(`      Pip: ${spoken(greeting)}`);
+  check("greets by name when the session opens", /pip/i.test(spoken(greeting)) && /maria/i.test(spoken(greeting)));
+
   // 1. Routine case: silence.
-  const routine = S.captureCases[0];
+  const routine = S.captureCases.find((x) => x.invoice.id === "INV-2042")!;
   const t1 = await s.say("contextual_update", routineObservation(routine.invoice, "Approve"), 6000);
   check("stays silent on a routine case", t1.said.length === 0 && t1.tools.length === 0, spoken(t1).slice(0, 80));
 
   // 2. Vantage: bank details changed, fully matched, expert holds.
-  const c = S.captureCases[3];
+  const c = S.captureCases.find((x) => x.invoice.id === "INV-2044")!; // Vantage: matches, but the bank details changed
   const moment = detectMoment(traceFor(c.invoice.id, ["bank_log"], "hold"), c.invoice, S)!;
   const ask = await s.say("user_message", captureAskCue(moment, c.invoice, S, map, ["bank_log"]));
   const q = spoken(ask);

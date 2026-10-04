@@ -26,10 +26,10 @@ export function Landing() {
       <div className="hero">
         <div className="eyebrow">Hack-Nation · ElevenLabs · The AI Apprentice</div>
         <h1>
-          The manual says one thing. Your best people do <em>another</em>.
+          Every rule has a caveat. Your best people know them <em>all</em>.
         </h1>
         <p className="lede">
-          Apprentice is a voice agent that shadows an expert, speaks only when their decision departs from the written procedure, and turns
+          Caveat AI is a voice agent that shadows an expert, speaks only when their decision departs from the written procedure, and turns
           what they explain into a Work Map. A second voice agent then teaches a new hire from that map.
         </p>
 
@@ -105,7 +105,7 @@ export function Landing() {
             <>
               <div className="fields">
                 <div className="field">
-                  <label htmlFor="a1">Apprentice agent id</label>
+                  <label htmlFor="a1">Capture agent id</label>
                   <input
                     id="a1"
                     value={settings.apprenticeAgentId}

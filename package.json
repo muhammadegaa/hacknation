@@ -1,9 +1,9 @@
 {
-  "name": "apprentice",
+  "name": "caveat-ai",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "The AI Apprentice: a voice agent that watches experts work, asks why at natural moments, and turns the answers into a Work Map and a voice tutor.",
+  "description": "Caveat AI: a voice apprentice that watches experts work, asks why at natural moments, and turns the answers into a Work Map and a voice tutor.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

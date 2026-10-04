@@ -1,14 +1,16 @@
-# Apprentice
+# Caveat AI
 
-**A voice agent that shadows an expert, asks "why" only when it matters, and turns the answers into a Work Map and a voice tutor.**
+*Every rule has a caveat. Your best people know them all.*
+
+**A voice apprentice that shadows an expert, asks "why" only when it matters, and turns the answers into a Work Map and a voice tutor.**
 
 Hack-Nation · Challenge 01 · ElevenLabs: The AI Apprentice
 
-> The manual says one thing. Your best people do another. That gap is where the expertise lives, and it walks out the door when they retire.
+> The manual says one thing. Your best people do another. The difference is the caveats. That gap is where the expertise lives, and it walks out the door when they retire.
 
 ## The idea in one paragraph
 
-Interviewing experts fails because it asks about everything, and experts can't articulate what they do without a trigger. Apprentice flips it. It watches real decisions, compares each one with the **written procedure encoded as code**, and speaks only at the moments where the expert departed from it: a decision the manual wouldn't make, a lookup the manual never mentions, a hesitation, a reversal. On routine work it stays silent. Each answer becomes a structured rule on a live **Work Map**, is read back to the expert for confirmation, and is then used by a second voice agent that **teaches a new hire**, hinting before it reveals and quoting the expert's own words.
+Interviewing experts fails because it asks about everything, and experts can't articulate what they do without a trigger. Caveat AI flips it. It watches real decisions, compares each one with the **written procedure encoded as code**, and speaks only at the moments where the expert departed from it: a decision the manual wouldn't make, a lookup the manual never mentions, a hesitation, a reversal. On routine work it stays silent. Each answer becomes a structured rule on a live **Work Map**, is read back to the expert for confirmation, and is then used by a second voice agent that **teaches a new hire**, hinting before it reveals and quoting the expert's own words.
 
 ## Try it
 
@@ -43,7 +45,7 @@ The app is a static Vite build; the browser holds no secrets, only the two publi
 
 ## What happens in a session
 
-| Stage | What the user does | What Apprentice does |
+| Stage | What the user does | What Caveat AI does |
 |---|---|---|
 | **Capture** | Works an accounts-payable exceptions queue as normal. | Feeds every lookup and click to the agent. Silent on routine cases. After a decision settles, asks one specific question if the decision broke the manual. |
 | **Verify** | Answers in their own words. | Records a typed rule (judgment, exception, guardrail, heuristic, escalation) with WHEN / THEN / BECAUSE / UNLESS and the quote, plays it back, and marks it verified or corrected. Discovers steps that aren't in the manual. |

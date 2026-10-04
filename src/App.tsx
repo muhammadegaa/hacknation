@@ -25,8 +25,8 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <button className="brand" onClick={() => go("landing")} aria-label="Apprentice home">
-          <span className="brand-dot" /> Apprentice
+        <button className="brand" onClick={() => go("landing")} aria-label="Caveat AI home">
+          <span className="brand-dot" /> Caveat <span className="brand-ai">AI</span>
         </button>
         <nav className="crumbs" aria-label="Stages">
           {CRUMBS.map((c) => (

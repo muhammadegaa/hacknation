@@ -16,8 +16,8 @@ The point to land: **it only speaks when the expert breaks the manual, and what 
 
 | Time | You do | You say | Judge should notice |
 |---|---|---|---|
-| 0:00 | Landing page. | "Every company has a Maria. The manual says one thing; Maria does another. When she leaves, that knowledge leaves." | The framing: the gap between SOP and practice. |
-| 0:15 | Click **Shadow Maria**. Pip greets. | "Pip is an AI apprentice. It sits beside her while she works." | Orb, "Watching quietly". |
+| 0:00 | Landing page. | "Every rule has a caveat. Every company has a Maria who knows them all, and none of it is written down. When she leaves, it leaves." | The framing: the gap between SOP and practice. |
+| 0:15 | Click **Shadow Maria**. Pip greets. | "This is Caveat AI, and Pip is its apprentice voice. It sits beside her while she works." | Orb, "Watching quietly". |
 | 0:25 | **INV-2042** Harbor: click Approve. Click Next. | "Routine invoice. Watch what Pip does." *(silence)* | **Pip says nothing.** Point at "Stayed quiet on 1". |
 | 0:40 | **INV-2041** Brightline: open *Contract notes*, Approve. Pip asks. Answer from the crib sheet. | "The manual says hold, 3.8% over. Maria approves." | Pip names the contrast and asks one question. The rule appears on the map. |
 | 1:05 | Pip plays it back. Say "Yes." | | WHEN / THEN / BECAUSE / UNLESS, quote, **Verified by Maria**. |

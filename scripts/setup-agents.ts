@@ -26,8 +26,8 @@ const client = new ElevenLabsClient({ apiKey });
 
 const VOICE_APPRENTICE = process.env.ELEVENLABS_VOICE_APPRENTICE || "EXAVITQu4vr4xnSDxMaL";
 const VOICE_TUTOR = process.env.ELEVENLABS_VOICE_TUTOR || "JBFqnCBsd6RMkjVDRZzb";
-const TTS_MODEL = (process.env.ELEVENLABS_TTS_MODEL || "eleven_flash_v2_5") as ElevenLabs.TtsConversationalModel;
-const LLM_CANDIDATES = [process.env.APPRENTICE_LLM, "claude-sonnet-5", "claude-sonnet-4-5", "gemini-2.5-flash"].filter(Boolean) as string[];
+const TTS_MODEL = (process.env.ELEVENLABS_TTS_MODEL || "eleven_turbo_v2_5") as ElevenLabs.TtsConversationalModel;
+const LLM_CANDIDATES = ["gpt-4o", "gpt-4o-mini", "claude-3-5-sonnet"];
 
 const prompt = (f: string) => readFileSync(join(root, "prompts", f), "utf8").trim();
 

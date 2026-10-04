@@ -306,7 +306,11 @@ async function tutor() {
     JSON.stringify(show?.params),
   );
   check("second mistake: states the correct decision", /hold/i.test(spoken(m2)));
-  check("second mistake: asks the trainee to say it back", spoken(m2).includes("?"));
+  // A question mark or an instruction both count: "In your own words, what's the rule?" / "Tell me this back in your own words."
+  check(
+    "second mistake: asks the trainee to say it back",
+    spoken(m2).includes("?") || /own words|say it back|tell me .* back|restate/i.test(spoken(m2)),
+  );
 
   s.close();
 }
